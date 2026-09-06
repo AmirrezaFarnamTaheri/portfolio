@@ -1111,6 +1111,7 @@
     { title: 'Toggle Dark / Light Theme', cat: 'Action', icon: '◐', action: () => themeToggle?.click() },
     { title: 'Visit TeIAS (Tehran Institute for Advanced Studies)', cat: 'Academic', icon: '↗', action: () => window.open('https://teias.institute', '_blank') },
     { title: 'Spawn Gravitational Singularity (Black Hole)', cat: 'Simulation', icon: '◉', action: () => { if (typeof window.__spawnBlackholeAt === 'function') { const s = window.__spawnBlackholeAt(0, 0); if (!s) showToast((window.I18N && window.I18N.t('toast_singularity_active')) || 'A singularity is already active on the manifold', 2400); } } },
+    { title: 'Trigger Einstein-Rosen Wormhole Portal', cat: 'Simulation', icon: '◎', action: () => { if (typeof window.__triggerWormhole === 'function') { const w = window.__triggerWormhole(); if (!w) showToast((window.I18N && window.I18N.t('toast_singularity_active')) || 'A singularity or wormhole is already active on the manifold', 2400); } } },
     { title: 'Spawn Descent Probe on Surface', cat: 'Simulation', icon: '✦', action: () => { if (typeof window.__spawnProbeAt === 'function') window.__spawnProbeAt((Math.random() - 0.5) * 20, (Math.random() - 0.5) * 20); } },
     { title: 'Trigger Loss Surface Ripple', cat: 'Simulation', icon: '◈', action: () => { if (typeof window.__triggerSurfaceRipple === 'function') window.__triggerSurfaceRipple(); } },
     { title: 'Copy Primary Email (TaheriFarnam@Gmail.com)', cat: 'Contact', icon: '⎘', action: () => copyText('TaheriFarnam@Gmail.com') },
@@ -1332,9 +1333,9 @@
           const depth = 14.5 * s;
           let funnel = -depth / (1.0 + distSq * 0.075);
 
-          // If transformed into an Einstein-Rosen wormhole: invert central core into an elevated throat bridge
+          // If transformed into an Einstein-Rosen wormhole: deep throat vortex conduit with flared mouth collar
           if (activeBlackhole.isWormhole) {
-            const throat = (16.0 * s) * Math.exp(-distSq * 0.35);
+            const throat = -(10.5 * s) * Math.exp(-distSq * 0.35) + (5.5 * s) * (distSq / (3.5 + distSq * 0.6)) * Math.exp(-distSq * 0.12);
             funnel += throat;
           }
 
@@ -1569,32 +1570,77 @@
         const particleSystem = new THREE.Points(particleGeo, particleMat);
         bhGroup.add(particleSystem);
 
-        // 7. Relativistic Polar Jet Rings (Activate upon Wormhole Transition)
-        const jetGeo1 = new THREE.RingGeometry(0.5, 2.2, 32);
+        // 7. Relativistic Polar Jet Cones (Activate upon Wormhole Transition)
+        const jetGeo1 = new THREE.CylinderGeometry(0.25, 2.0, 4.8, 32, 1, true);
         const jetMat1 = new THREE.MeshBasicMaterial({
-          color: 0x38bdf8,
+          color: isDark ? 0x38bdf8 : 0x0284c7,
           side: THREE.DoubleSide,
           transparent: true,
           opacity: 0,
           blending: THREE.AdditiveBlending
         });
         const jetMesh1 = new THREE.Mesh(jetGeo1, jetMat1);
-        jetMesh1.position.z = 1.4;
+        jetMesh1.rotation.order = 'ZXY';
+        jetMesh1.rotation.x = Math.PI / 2.6;
+        jetMesh1.position.z = 2.4;
         jetMesh1.visible = false;
         bhGroup.add(jetMesh1);
 
-        const jetGeo2 = new THREE.RingGeometry(0.5, 2.2, 32);
+        const jetGeo2 = new THREE.CylinderGeometry(0.25, 2.0, 4.8, 32, 1, true);
         const jetMat2 = new THREE.MeshBasicMaterial({
-          color: 0xc084fc,
+          color: isDark ? 0xc084fc : 0x9333ea,
           side: THREE.DoubleSide,
           transparent: true,
           opacity: 0,
           blending: THREE.AdditiveBlending
         });
         const jetMesh2 = new THREE.Mesh(jetGeo2, jetMat2);
-        jetMesh2.position.z = -1.4;
+        jetMesh2.rotation.order = 'ZXY';
+        jetMesh2.rotation.x = Math.PI / 2.6;
+        jetMesh2.position.z = -2.4;
         jetMesh2.visible = false;
         bhGroup.add(jetMesh2);
+
+        // 8. Einstein-Rosen 3D Hyperbolic Throat Conduit Tube
+        const throatGeo = new THREE.CylinderGeometry(0.85, 1.75, 5.6, 32, 16, true);
+        const throatMat = new THREE.MeshBasicMaterial({
+          color: isDark ? 0x38bdf8 : 0x1e56e3,
+          wireframe: true,
+          side: THREE.DoubleSide,
+          transparent: true,
+          opacity: 0,
+          blending: THREE.AdditiveBlending
+        });
+        const throatMesh = new THREE.Mesh(throatGeo, throatMat);
+        throatMesh.rotation.order = 'ZXY';
+        throatMesh.rotation.x = Math.PI / 2.6;
+        throatMesh.visible = false;
+        bhGroup.add(throatMesh);
+
+        // 9. Internal Hyperspace Throat Gate Rings
+        const throatRingsGroup = new THREE.Group();
+        throatRingsGroup.rotation.order = 'ZXY';
+        throatRingsGroup.rotation.x = Math.PI / 2.6;
+        throatRingsGroup.visible = false;
+        bhGroup.add(throatRingsGroup);
+
+        const throatRingMeshes = [];
+        const ringZDepths = [-2.0, -1.0, 0, 1.0, 2.0];
+        for (let ri = 0; ri < ringZDepths.length; ri++) {
+          const rad = 0.88 + Math.abs(ringZDepths[ri]) * 0.28;
+          const trGeo = new THREE.RingGeometry(rad * 0.85, rad, 48);
+          const trMat = new THREE.MeshBasicMaterial({
+            color: isDark ? 0xc084fc : 0x9333ea,
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 0.85,
+            blending: THREE.AdditiveBlending
+          });
+          const trMesh = new THREE.Mesh(trGeo, trMat);
+          trMesh.position.z = ringZDepths[ri];
+          throatRingsGroup.add(trMesh);
+          throatRingMeshes.push(trMesh);
+        }
 
         const initialZ = getLossHeight(spawnX, spawnY, clock.getElapsedTime());
         bhGroup.position.set(spawnX, spawnY, initialZ);
@@ -1616,6 +1662,9 @@
           lensMesh: lensMesh,
           jetMesh1: jetMesh1,
           jetMesh2: jetMesh2,
+          throatMesh: throatMesh,
+          throatRingsGroup: throatRingsGroup,
+          throatRingMeshes: throatRingMeshes,
           particleSystem: particleSystem,
           particleData: particleData
         };
@@ -1624,6 +1673,60 @@
         rippleIntensity = 3.5;
         rippleX = spawnX;
         rippleY = spawnY;
+
+        if (typeof console !== 'undefined' && console.info) {
+          console.info('%c[Singularity]%c Gravitational singularity active on loss manifold. Feed 8 probes into the event horizon to open an Einstein-Rosen bridge.', 'color: #38bdf8; font-weight: bold;', 'color: inherit;');
+        }
+      }
+
+      function triggerWormholeTransition(currentTime) {
+        if (!activeBlackhole) return;
+        activeBlackhole.isWormhole = true;
+        activeBlackhole.duration = 18.0; // Wormhole duration: 18 seconds
+        activeBlackhole.startTime = typeof currentTime === 'number' ? currentTime : clock.getElapsedTime();
+        rippleIntensity = 4.8; // Relativistic supernova shockwave
+
+        // Morph core sphere into a translucent, shimmering portal mouth
+        activeBlackhole.coreMesh.material.transparent = true;
+        activeBlackhole.coreMesh.material.opacity = isDark ? 0.35 : 0.26;
+        activeBlackhole.coreMesh.material.color.setHex(isDark ? 0xe0f2fe : 0x38bdf8);
+        activeBlackhole.coreMesh.material.blending = THREE.AdditiveBlending;
+        activeBlackhole.coreMesh.material.needsUpdate = true;
+
+        // Luminous Einstein-Rosen portal visual transformation (theme-responsive)
+        activeBlackhole.iscoMesh.material.color.setHex(isDark ? 0xffffff : 0x67e8f9);
+        activeBlackhole.ringMesh.material.color.setHex(isDark ? 0xc084fc : 0x9333ea);
+        activeBlackhole.haloMesh.material.color.setHex(isDark ? 0x38bdf8 : 0x0284c7);
+        if (activeBlackhole.lensMesh) activeBlackhole.lensMesh.material.color.setHex(isDark ? 0xe0f2fe : 0x38bdf8);
+        if (activeBlackhole.particleSystem) activeBlackhole.particleSystem.material.color.setHex(isDark ? 0xe0f2fe : 0x38bdf8);
+
+        // Activate 3D Hyperbolic Throat Conduit Tube
+        if (activeBlackhole.throatMesh) {
+          activeBlackhole.throatMesh.visible = true;
+          activeBlackhole.throatMesh.material.opacity = isDark ? 0.85 : 0.65;
+          activeBlackhole.throatMesh.material.color.setHex(isDark ? 0x38bdf8 : 0x1e56e3);
+        }
+
+        // Activate Cascading Hyperspace Gate Rings
+        if (activeBlackhole.throatRingsGroup) {
+          activeBlackhole.throatRingsGroup.visible = true;
+        }
+
+        // Activate twin 3D relativistic polar jet columns
+        if (activeBlackhole.jetMesh1) {
+          activeBlackhole.jetMesh1.visible = true;
+          activeBlackhole.jetMesh1.material.color.setHex(isDark ? 0x38bdf8 : 0x0284c7);
+          activeBlackhole.jetMesh1.material.opacity = 0.75;
+        }
+        if (activeBlackhole.jetMesh2) {
+          activeBlackhole.jetMesh2.visible = true;
+          activeBlackhole.jetMesh2.material.color.setHex(isDark ? 0xc084fc : 0x9333ea);
+          activeBlackhole.jetMesh2.material.opacity = 0.75;
+        }
+
+        if (typeof console !== 'undefined' && console.info) {
+          console.info('%c[Wormhole]%c Einstein-Rosen bridge opened. Core inverted into throat bridge; probes will teleport across the manifold.', 'color: #c084fc; font-weight: bold;', 'color: inherit;');
+        }
       }
 
       window.__spawnBlackholeAt = function (x, y) {
@@ -1640,6 +1743,18 @@
 
       window.__getActiveBlackhole = function () {
         return activeBlackhole;
+      };
+
+      window.__triggerWormhole = function () {
+        if (!activeBlackhole) {
+          spawnBlackhole(0, 0);
+        }
+        if (activeBlackhole && !activeBlackhole.isWormhole) {
+          activeBlackhole.absorbedCount = 8;
+          triggerWormholeTransition();
+          return true;
+        }
+        return false;
       };
 
       // Spawn initial demonstration probe on startup
@@ -1669,15 +1784,24 @@
 
         if (activeBlackhole) {
           if (activeBlackhole.isWormhole) {
+            activeBlackhole.coreMesh.material.transparent = true;
+            activeBlackhole.coreMesh.material.opacity = dark ? 0.35 : 0.26;
             activeBlackhole.coreMesh.material.color.setHex(dark ? 0xe0f2fe : 0x38bdf8);
             activeBlackhole.ringMesh.material.color.setHex(dark ? 0xc084fc : 0x9333ea);
             activeBlackhole.haloMesh.material.color.setHex(dark ? 0x38bdf8 : 0x0284c7);
             if (activeBlackhole.iscoMesh) activeBlackhole.iscoMesh.material.color.setHex(dark ? 0xffffff : 0x67e8f9);
             if (activeBlackhole.lensMesh) activeBlackhole.lensMesh.material.color.setHex(dark ? 0xe0f2fe : 0x38bdf8);
-            if (activeBlackhole.jetMesh1) activeBlackhole.jetMesh1.material.color.setHex(dark ? 0xc084fc : 0x9333ea);
+            if (activeBlackhole.jetMesh1) activeBlackhole.jetMesh1.material.color.setHex(dark ? 0x38bdf8 : 0x0284c7);
             if (activeBlackhole.jetMesh2) activeBlackhole.jetMesh2.material.color.setHex(dark ? 0xc084fc : 0x9333ea);
             if (activeBlackhole.particleSystem) activeBlackhole.particleSystem.material.color.setHex(dark ? 0xe0f2fe : 0x38bdf8);
+            if (activeBlackhole.throatMesh) activeBlackhole.throatMesh.material.color.setHex(dark ? 0x38bdf8 : 0x1e56e3);
+            if (activeBlackhole.throatRingMeshes) {
+              activeBlackhole.throatRingMeshes.forEach(trm => trm.material.color.setHex(dark ? 0xc084fc : 0x9333ea));
+            }
           } else {
+            activeBlackhole.coreMesh.material.transparent = false;
+            activeBlackhole.coreMesh.material.opacity = 1.0;
+            activeBlackhole.coreMesh.material.color.setHex(0x010204);
             activeBlackhole.ringMesh.material.color.setHex(dark ? 0x38bdf8 : 0x1e56e3);
             activeBlackhole.haloMesh.material.color.setHex(dark ? 0x818cf8 : 0x4338ca);
             if (activeBlackhole.iscoMesh) activeBlackhole.iscoMesh.material.color.setHex(dark ? 0xffffff : 0x93c5fd);
@@ -1916,6 +2040,16 @@
                 activeBlackhole.particleSystem.geometry.dispose();
                 activeBlackhole.particleSystem.material.dispose();
               }
+              if (activeBlackhole.throatMesh) {
+                activeBlackhole.throatMesh.geometry.dispose();
+                activeBlackhole.throatMesh.material.dispose();
+              }
+              if (activeBlackhole.throatRingMeshes) {
+                activeBlackhole.throatRingMeshes.forEach(trm => {
+                  trm.geometry.dispose();
+                  trm.material.dispose();
+                });
+              }
               activeBlackhole = null;
             } else {
               const progress = age / activeBlackhole.duration;
@@ -1943,28 +2077,58 @@
               if (activeBlackhole.iscoMesh) activeBlackhole.iscoMesh.rotation.z += 0.12 * spinMult;
               if (activeBlackhole.lensMesh) activeBlackhole.lensMesh.rotation.z += 0.035 * spinMult;
 
-              // Relativistic polar jet dynamic oscillation during wormhole phase
-              if (activeBlackhole.isWormhole && activeBlackhole.jetMesh1 && activeBlackhole.jetMesh2) {
-                activeBlackhole.jetMesh1.rotation.z -= 0.16;
-                activeBlackhole.jetMesh2.rotation.z += 0.16;
-                activeBlackhole.jetMesh1.position.z = 1.3 + Math.sin(elapsedTime * 7.0) * 0.25;
-                activeBlackhole.jetMesh2.position.z = -1.3 - Math.sin(elapsedTime * 7.0) * 0.25;
+              // Relativistic 3D throat conduit, gate rings & polar jet dynamic oscillation during wormhole phase
+              if (activeBlackhole.isWormhole) {
+                if (activeBlackhole.throatMesh) {
+                  activeBlackhole.throatMesh.rotation.z += 0.04;
+                  const throb = 1.0 + Math.sin(elapsedTime * 4.2) * 0.08;
+                  activeBlackhole.throatMesh.scale.set(throb, 1.0, throb);
+                }
+                if (activeBlackhole.throatRingMeshes) {
+                  for (let ri = 0; ri < activeBlackhole.throatRingMeshes.length; ri++) {
+                    const trm = activeBlackhole.throatRingMeshes[ri];
+                    trm.rotation.z += (ri % 2 === 0 ? 0.06 : -0.06);
+                    const pz = 0.88 + Math.sin(elapsedTime * 3.8 + ri * 1.1) * 0.2;
+                    trm.scale.set(pz, pz, pz);
+                  }
+                }
+                if (activeBlackhole.jetMesh1 && activeBlackhole.jetMesh2) {
+                  activeBlackhole.jetMesh1.rotation.z -= 0.12;
+                  activeBlackhole.jetMesh2.rotation.z += 0.12;
+                  activeBlackhole.jetMesh1.position.z = 2.2 + Math.sin(elapsedTime * 6.0) * 0.35;
+                  activeBlackhole.jetMesh2.position.z = -2.2 - Math.sin(elapsedTime * 6.0) * 0.35;
+                }
               }
 
-              // Accretion particle Keplerian orbital motion
+              // Accretion particle Keplerian orbital motion & wormhole conduit transfer
               if (activeBlackhole.particleData && activeBlackhole.particleSystem) {
                 const pArr = activeBlackhole.particleSystem.geometry.attributes.position.array;
                 const pList = activeBlackhole.particleData;
                 for (let pi = 0; pi < pList.length; pi++) {
                   const pd = pList[pi];
-                  pd.theta += pd.speed * (activeBlackhole.isWormhole ? 1.8 : 1.0);
-                  pd.r -= 0.0035 * s;
-                  if (pd.r < 1.45) pd.r = 4.8 + Math.random() * 0.4;
+                  if (activeBlackhole.isWormhole) {
+                    pd.theta += pd.speed * 2.2;
+                    pd.r -= 0.007 * s;
+                    if (pd.r < 1.1) {
+                      pd.zTunnel = (pd.zTunnel !== undefined ? pd.zTunnel : 2.2) - 0.16;
+                      if (pd.zTunnel < -2.2) {
+                        pd.r = 4.6 + Math.random() * 0.6;
+                        pd.zTunnel = 2.2;
+                      }
+                    } else {
+                      pd.zTunnel = (Math.random() - 0.5) * 0.25;
+                    }
+                  } else {
+                    pd.theta += pd.speed;
+                    pd.r -= 0.0035 * s;
+                    if (pd.r < 1.45) pd.r = 4.8 + Math.random() * 0.4;
+                    pd.zTunnel = 0;
+                  }
                   const cosA = Math.cos(pd.theta);
                   const sinA = Math.sin(pd.theta);
                   pArr[pi * 3] = pd.r * cosA;
                   pArr[pi * 3 + 1] = pd.r * sinA * Math.cos(Math.PI / 2.6);
-                  pArr[pi * 3 + 2] = pd.r * sinA * Math.sin(Math.PI / 2.6);
+                  pArr[pi * 3 + 2] = pd.r * sinA * Math.sin(Math.PI / 2.6) + (pd.zTunnel || 0);
                 }
                 activeBlackhole.particleSystem.geometry.attributes.position.needsUpdate = true;
               }
@@ -2005,6 +2169,13 @@
                   p.vx = Math.cos(exitAngle) * 0.44;
                   p.vy = Math.sin(exitAngle) * 0.44;
                   p.history = [{ x: p.x, y: p.y }];
+                  const exitZ = getLossHeight(p.x, p.y, elapsedTime) + 0.65;
+                  p.mesh.position.set(p.x, p.y, exitZ);
+                  p.trailPositions[0] = p.x;
+                  p.trailPositions[1] = p.y;
+                  p.trailPositions[2] = exitZ - 0.49;
+                  p.traceMesh.geometry.attributes.position.needsUpdate = true;
+                  p.traceMesh.geometry.setDrawRange(0, 0);
                   // Wormhole exit flare shockwave
                   rippleIntensity = 2.6;
                   rippleX = p.x;
@@ -2041,23 +2212,7 @@
                     activeBlackhole.isWormhole = true;
                     activeBlackhole.duration = 18.0; // Wormhole duration: 18 seconds
                     activeBlackhole.startTime = elapsedTime;
-                    rippleIntensity = 4.8; // Relativistic supernova shockwave
-
-                    // Luminous Einstein-Rosen portal visual transformation
-                    activeBlackhole.coreMesh.material.color.setHex(0xe0f2fe);
-                    activeBlackhole.iscoMesh.material.color.setHex(0xffffff);
-                    activeBlackhole.ringMesh.material.color.setHex(0xc084fc);
-                    activeBlackhole.haloMesh.material.color.setHex(0x38bdf8);
-
-                    // Activate twin relativistic polar jet rings
-                    if (activeBlackhole.jetMesh1) {
-                      activeBlackhole.jetMesh1.visible = true;
-                      activeBlackhole.jetMesh1.material.opacity = 0.85;
-                    }
-                    if (activeBlackhole.jetMesh2) {
-                      activeBlackhole.jetMesh2.visible = true;
-                      activeBlackhole.jetMesh2.material.opacity = 0.85;
-                    }
+                    triggerWormholeTransition(elapsedTime);
                   }
                 } else {
                   // Smooth relativistic Keplerian spiral physics

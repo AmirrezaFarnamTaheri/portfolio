@@ -283,6 +283,15 @@ try {
     'Blackhole lifespan (24s), probe absorption rejuvenation (+1.5s), 8-ball wormhole transformation, and throat curvature verified'
   );
 
+  // 17. Validate Wormhole Controller, Instantaneous Teleportation & Palette Registration
+  const hasWormholeApi = appJsContent.includes('window.__triggerWormhole = function');
+  const hasInstantMeshTeleport = appJsContent.includes('p.mesh.position.set(p.x, p.y, exitZ)') && appJsContent.includes('p.traceMesh.geometry.setDrawRange(0, 0)');
+  const hasPaletteWormhole = appJsContent.includes("'Trigger Einstein-Rosen Wormhole Portal'");
+  assert(
+    hasWormholeApi && hasInstantMeshTeleport && hasPaletteWormhole,
+    'Wormhole API, zero-latency mesh teleportation, and command palette integration verified'
+  );
+
 } catch (e) {
   assert(false, `i18n validation error: ${e.message}`);
 }
