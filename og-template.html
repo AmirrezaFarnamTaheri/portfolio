@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800;900&family=Geist+Mono:wght@400;500;600;700&display=swap');
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 1200px;
+      height: 630px;
+      overflow: hidden;
+      background-color: #080b11;
+      color: #f3f6fc;
+      font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 56px 68px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Subtle background grid & radial glow */
+    .bg-grid {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      mask-image: radial-gradient(circle at 85% 20%, black 15%, transparent 75%);
+      -webkit-mask-image: radial-gradient(circle at 85% 20%, black 15%, transparent 75%);
+      pointer-events: none;
+    }
+
+    .glow-radial {
+      position: absolute;
+      top: -120px;
+      right: -80px;
+      width: 650px;
+      height: 650px;
+      background: radial-gradient(circle, rgba(30, 86, 227, 0.32) 0%, rgba(56, 189, 248, 0.15) 40%, transparent 70%);
+      pointer-events: none;
+      filter: blur(40px);
+    }
+
+    .glow-bottom {
+      position: absolute;
+      bottom: -150px;
+      left: 100px;
+      width: 500px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(14, 165, 233, 0.12) 0%, transparent 70%);
+      pointer-events: none;
+      filter: blur(50px);
+    }
+
+    /* Header Row */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .wordmark {
+      font-family: 'Geist Mono', monospace;
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: #ffffff;
+    }
+
+    .wordmark span {
+      color: #38bdf8;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 6px 12px;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      background: rgba(12, 33, 56, 0.6);
+      border-radius: 999px;
+      color: #7dd3fc;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      background-color: #38bdf8;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #38bdf8;
+    }
+
+    .domain {
+      font-family: 'Geist Mono', monospace;
+      font-size: 13px;
+      color: #8d9bb0;
+      letter-spacing: 0.04em;
+    }
+
+    /* Center Content */
+    .center-content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-top: -10px;
+    }
+
+    .kicker {
+      font-family: 'Geist Mono', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #38bdf8;
+    }
+
+    h1 {
+      font-size: 64px;
+      font-weight: 800;
+      letter-spacing: -0.045em;
+      line-height: 1.05;
+      color: #ffffff;
+    }
+
+    h1 .prefix {
+      color: #8d9bb0;
+      font-weight: 600;
+    }
+
+    .roles {
+      font-size: 22px;
+      font-weight: 600;
+      color: #cbd5e1;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .roles span.sep {
+      color: #38bdf8;
+      font-weight: 800;
+    }
+
+    .summary {
+      font-size: 16px;
+      line-height: 1.55;
+      color: #94a3b8;
+      max-width: 820px;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .tag {
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 5px 11px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.04);
+      color: #e2e8f0;
+      border-radius: 4px;
+    }
+
+    /* Footer Telemetry Banner */
+    .footer-ledger {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr) 1.25fr;
+      gap: 16px;
+      position: relative;
+      z-index: 2;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 22px;
+    }
+
+    .stat-card {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .stat-val {
+      font-family: 'Geist Mono', monospace;
+      font-size: 24px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.02em;
+    }
+
+    .stat-val.accent {
+      color: #38bdf8;
+    }
+
+    .stat-lbl {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #8d9bb0;
+    }
+
+    .contact-block {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-end;
+      gap: 6px;
+      font-family: 'Geist Mono', monospace;
+      font-size: 11.5px;
+      color: #94a3b8;
+    }
+
+    .contact-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .contact-row span.icon {
+      color: #38bdf8;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="glow-radial"></div>
+  <div class="glow-bottom"></div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="brand">
+      <div class="wordmark">FT<span>/CV</span></div>
+      <div class="status-badge">
+        <span class="status-dot"></span>
+        <span>TEIAS GRADUATE RESEARCH</span>
+      </div>
+    </div>
+    <div class="domain">amirrezafarnamtaheri.github.io/portfolio</div>
+  </header>
+
+  <!-- Center Content -->
+  <main class="center-content">
+    <div class="kicker">Graduate Researcher · TeIAS Department of Data Science</div>
+    <h1>
+      <span class="prefix">Amirreza</span> “Farnam” Taheri
+    </h1>
+    <div class="roles">
+      <span>Data Scientist</span>
+      <span class="sep">/</span>
+      <span>AI Engineer</span>
+      <span class="sep">/</span>
+      <span>Software Systems</span>
+    </div>
+    <p class="summary">
+      Causal econometrics, empirical modeling (Python, R, Stata) and high-performance software systems (Rust 2024, TypeScript, Go). Open-source knowledge tools, telemetry ingestion, and deep learning architectures.
+    </p>
+    <div class="tags">
+      <span class="tag">Rust 2024</span>
+      <span class="tag">TypeScript</span>
+      <span class="tag">Go</span>
+      <span class="tag">Python</span>
+      <span class="tag">R</span>
+      <span class="tag">Stata</span>
+      <span class="tag">TensorFlow</span>
+      <span class="tag">Causal Inference</span>
+      <span class="tag">Tauri 2</span>
+      <span class="tag">SQLite FTS5</span>
+    </div>
+  </main>
+
+  <!-- Bottom Distinction Ledger -->
+  <footer class="footer-ledger">
+    <div class="stat-card">
+      <div class="stat-val">18.72 / 20</div>
+      <div class="stat-lbl">TeIAS Graduate GPA</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val accent">Rank 27</div>
+      <div class="stat-lbl">National Master's Exam</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val">19.20 / 20</div>
+      <div class="stat-lbl">AUT Economics Minor</div>
+    </div>
+    <div class="contact-block">
+      <div class="contact-row">
+        <span class="icon">↗</span>
+        <span>github.com/AmirrezaFarnamTaheri</span>
+      </div>
+      <div class="contact-row">
+        <span class="icon">in</span>
+        <span>linkedin.com/in/amirreza-farnam-taheri</span>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

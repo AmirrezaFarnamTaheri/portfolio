@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Amirreza Farnam Taheri — Data Scientist, AI Engineer, and Software Engineer. Systems programming in Rust and Go, machine learning, and empirical econometrics." />
+  <meta name="theme-color" content="#f5f7fa" />
+  <meta name="author" content="Amirreza Farnam Taheri" />
+  <link rel="canonical" href="https://amirrezafarnamtaheri.github.io/portfolio/" />
+
+  <!-- Open Graph / Facebook / LinkedIn -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Farnam Taheri Portfolio" />
+  <meta property="og:url" content="https://amirrezafarnamtaheri.github.io/portfolio/" />
+  <meta property="og:title" content="Amirreza “Farnam” Taheri — Data Scientist · AI Engineer · Software Engineer" />
+  <meta property="og:description" content="Graduate researcher at TeIAS focusing on causal econometrics, empirical modeling, and software systems in Rust and Go. Portfolio, coursework repositories, and verified records." />
+  <meta property="og:image" content="https://amirrezafarnamtaheri.github.io/portfolio/og-card.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Amirreza Farnam Taheri — Portfolio & Curriculum Vitae" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://amirrezafarnamtaheri.github.io/portfolio/" />
+  <meta name="twitter:title" content="Amirreza “Farnam” Taheri — Data Scientist · AI Engineer · Software Engineer" />
+  <meta name="twitter:description" content="Graduate researcher at TeIAS focusing on causal econometrics, empirical modeling, and software systems in Rust and Go. Portfolio, coursework repositories, and verified records." />
+  <meta name="twitter:image" content="https://amirrezafarnamtaheri.github.io/portfolio/og-card.png" />
+
+  <!-- Structured Data (Schema.org JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Amirreza “Farnam” Taheri",
+    "alternateName": "Farnam Taheri",
+    "url": "https://amirrezafarnamtaheri.github.io/portfolio/",
+    "image": "https://amirrezafarnamtaheri.github.io/portfolio/og-card.png",
+    "jobTitle": ["Data Scientist", "AI Engineer", "Software Engineer"],
+    "email": "mailto:TaheriFarnam@Gmail.com",
+    "telephone": "+989999946242",
+    "sameAs": [
+      "https://github.com/AmirrezaFarnamTaheri",
+      "https://ir.linkedin.com/in/amirreza-farnam-taheri-2691b1201"
+    ],
+    "alumniOf": [
+      {
+        "@type": "CollegeOrUniversity",
+        "name": "Tehran Institute for Advanced Studies (TeIAS)"
+      },
+      {
+        "@type": "CollegeOrUniversity",
+        "name": "Amirkabir University of Technology (AUT)"
+      }
+    ]
+  }
+  </script>
+  <title>Farnam Taheri — Data Scientist · AI Engineer · Software Engineer</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@400;500;600;700&family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="styles.css?v=2.4" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script defer src="i18n.js?v=2.4"></script>
+  <script defer src="data.js?v=2.4"></script>
+  <script defer src="app.js?v=2.4"></script>
+</head>
+<body>
+  <div id="scroll-progress" class="scroll-progress" aria-hidden="true"></div>
+  <a class="skip-link" href="#main" data-i18n="skip_link">Skip to main content</a>
+
+  <header class="site-header" aria-label="Primary navigation">
+    <div class="header-brand-wrap">
+      <a class="wordmark" href="#top" aria-label="Farnam Taheri Home">
+        FT<span>/CV</span>
+      </a>
+      <a href="https://teias.institute" target="_blank" rel="noreferrer" class="status-badge" aria-label="Academic Affiliation" title="Tehran Institute for Advanced Studies · teias.institute">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span data-i18n="teias_student">TEIAS GRADUATE STUDENT</span>
+      </a>
+    </div>
+    
+    <nav class="site-nav" aria-label="Section links">
+      <a href="#research" data-i18n="nav_research">Research</a>
+      <a href="#coursework" data-i18n="nav_coursework">Courseworks</a>
+      <a href="#background" data-i18n="nav_background">Background &amp; Skills</a>
+      <a href="#work" data-i18n="nav_projects">Passion Projects</a>
+      <a href="#scientific" data-i18n="nav_computing">Computing</a>
+      <a href="resume.html" data-i18n="nav_resume">Resume</a>
+    </nav>
+    
+    <div class="header-actions">
+      <button id="cmd-trigger" class="cmd-trigger-btn" type="button" aria-label="Open Command Palette" title="Command Palette (Ctrl+K)">
+        <span class="cmd-icon" aria-hidden="true">⌘</span>
+        <span class="cmd-label" data-i18n="search">Search</span>
+        <kbd class="cmd-kbd">Ctrl+K</kbd>
+      </button>
+
+      <button id="lang-toggle" class="lang-toggle" type="button" aria-label="Switch to Persian" title="Switch language (FA / EN)">
+        <span class="lang-code mono">FA</span>
+      </button>
+
+      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle color theme" aria-pressed="false" title="Toggle Theme">
+        ◐
+      </button>
+
+      <button id="mobile-menu-btn" class="mobile-menu-toggle" type="button" aria-label="Toggle mobile menu" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile Navigation Drawer -->
+  <div id="mobile-drawer" class="mobile-drawer" aria-hidden="true">
+    <nav class="mobile-nav">
+      <a href="#research" class="mobile-nav-link" data-i18n="nav_research">Research</a>
+      <a href="#coursework" class="mobile-nav-link" data-i18n="nav_coursework">Courseworks</a>
+      <a href="#background" class="mobile-nav-link" data-i18n="nav_background">Background &amp; Skills</a>
+      <a href="#work" class="mobile-nav-link" data-i18n="nav_projects">Passion Projects</a>
+      <a href="#scientific" class="mobile-nav-link" data-i18n="nav_computing">Scientific Computing</a>
+      <a href="resume.html" class="mobile-nav-link highlight">
+        <span data-i18n="printable_resume">Printable Resume</span> <span aria-hidden="true">↗</span>
+      </a>
+      <button id="mobile-lang-toggle" class="mobile-lang-toggle" type="button" aria-label="Switch to Persian">
+        <svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg> <span>فارسی (FA)</span>
+      </button>
+    </nav>
+  </div>
+
+  <main id="main">
+    <section id="top" class="hero" aria-labelledby="hero-title">
+      <div class="hero-canvas-wrap" aria-hidden="true">
+        <canvas id="hero-canvas"></canvas>
+        <div class="canvas-overlay-gradient"></div>
+      </div>
+
+      <div class="shell hero-inner">
+        <div class="hero-header-row">
+          <div class="hero-kicker mono" data-i18n="academic_systems_kicker">
+            ACADEMIC &amp; SYSTEMS PORTFOLIO
+          </div>
+        </div>
+
+        <div class="hero-grid">
+          <div class="hero-copy">
+            <h1 id="hero-title">
+              <span class="muted-prefix">Amirreza</span>
+              “Farnam” Taheri
+            </h1>
+            <div id="role-line" class="role-line" aria-label="Professional Specializations"></div>
+            <p id="hero-statement" class="lede"></p>
+            <div class="hero-actions">
+              <a class="button primary" href="#research">
+                <span aria-hidden="true">↓</span> <span data-i18n="hero_btn_research">Research &amp; Courseworks</span>
+              </a>
+              <a class="button" href="#work">
+                <span aria-hidden="true">↓</span> <span data-i18n="hero_btn_projects">Passion Projects</span>
+              </a>
+              <button id="open-cmd-btn" class="button" type="button">
+                <span aria-hidden="true">⌘</span> <span data-i18n="hero_btn_cmd">Command Palette</span> <kbd class="inline-kbd">Ctrl+K</kbd>
+              </button>
+              <a class="button" href="resume.html">
+                <span aria-hidden="true">↗</span> <span data-i18n="hero_btn_resume">Printable Resume</span>
+              </a>
+            </div>
+          </div>
+
+          <aside class="hero-ledger" aria-label="Profile and Summary">
+            <div class="hero-ledger-title" data-i18n="overview">Overview</div>
+            <div id="hero-telemetry" class="hero-telemetry"></div>
+            <div class="ledger-note" data-i18n="ledger_note">
+              Open-source repositories and verified graduate academic records.
+            </div>
+            <div id="hero-contact" class="contact-stack"></div>
+          </aside>
+        </div>
+
+        <div class="proof-line-wrap" aria-label="Core Technologies">
+          <div id="proof-line" class="proof-line mono"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Research Section -->
+    <section id="research" class="section shell" aria-labelledby="research-title">
+      <div class="section-heading">
+        <div>
+          <h2 id="research-title" data-i18n="research_title">Research</h2>
+        </div>
+        <p data-i18n="research_desc">Master’s thesis research in labor economics, search-and-matching models, and empirical microdata.</p>
+      </div>
+
+      <!-- Master's Thesis Research Spotlight -->
+      <div id="thesis-spotlight" class="thesis-spotlight" aria-label="Master's Thesis Research"></div>
+    </section>
+
+    <!-- Courseworks Section -->
+    <section id="coursework" class="section shell" aria-labelledby="coursework-title">
+      <div class="section-heading">
+        <div>
+          <h2 id="coursework-title" data-i18n="coursework_title">Courseworks</h2>
+        </div>
+        <p data-i18n="coursework_desc">Graduate coursework repositories (Python, Stata), academic credentials, and quantitative foundations.</p>
+      </div>
+
+      <!-- Distinction & GPA Banner -->
+      <div class="coursework-stats-banner mono">
+        <div class="stat-pill">
+          <span class="stat-num">18.72 / 20</span>
+          <span class="stat-desc" data-i18n="stat_teias_gpa">TeIAS Graduate GPA</span>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-num">19.20 / 20</span>
+          <span class="stat-desc" data-i18n="stat_minor_gpa">AUT Economics Minor GPA</span>
+        </div>
+        <div class="stat-pill highlight">
+          <span class="stat-num" data-i18n="stat_rank_val">Rank 27</span>
+          <span class="stat-desc" data-i18n="stat_rank">Nationwide Entrance Exam</span>
+        </div>
+      </div>
+
+      <!-- Coursework Search & Filter Controls -->
+      <div class="course-controls-bar">
+        <div id="course-filters" class="filter-bar" aria-label="Course category filters"></div>
+        <div class="course-search-wrap">
+          <input id="course-search" class="course-search-input" type="search" placeholder="Search methods, tools, courses (e.g. GMM, LoRA, Python)..." aria-label="Search coursework" data-i18n-placeholder="search_placeholder" />
+        </div>
+      </div>
+
+      <div class="course-legend mono" aria-hidden="true">
+        <span data-i18n="legend_course">Course / Institution</span>
+        <span data-i18n="legend_methods">Methods &amp; Tools</span>
+        <span data-i18n="legend_eval">Evaluation</span>
+      </div>
+      <div id="course-list" class="course-list" role="region" aria-live="polite"></div>
+
+      <!-- Unified Academic Background & Technical Skills -->
+      <div id="background" class="academic-sub-block">
+        <div class="sub-heading">
+          <div class="hero-kicker mono" data-i18n="credentials_kicker">CREDENTIALS &amp; COMPETENCIES</div>
+          <h3 data-i18n="credentials_title">Academic Background &amp; Technical Skills</h3>
+          <p data-i18n="credentials_desc">Dual academic pedigree spanning quantitative economics, structural modeling, and engineering systems.</p>
+        </div>
+        <div class="background-grid">
+          <div id="education-list" class="education-list"></div>
+          <div class="skill-map">
+            <div class="skill-map-header" data-i18n="skills_and_tech">Skills &amp; Technologies</div>
+            <div class="skill-row">
+              <span data-i18n="skills_econometrics">Econometrics &amp; Modeling</span>
+              <p>Stata · Python · R · Dynare / MATLAB · LaTeX · Causal Inference · GMM · Synthetic DiD · Panel Econometrics · IV / 2SLS</p>
+            </div>
+            <div class="skill-row">
+              <span data-i18n="skills_datascience">Data Science / Data Engineering</span>
+              <p>Survey Microdata (NLSY79, O*NET, HEIS, LFS) · SQL · ETL Pipelines · Pandas · NumPy · SciPy · Data Cleaning &amp; Imputation · Nonparametric Smoothing</p>
+            </div>
+            <div class="skill-row">
+              <span data-i18n="skills_ml">Machine Learning &amp; AI</span>
+              <p>PyTorch · TensorFlow · Transformers · LoRA · Reinforcement Learning (DQN) · Time-Series &amp; Forecasting · CNNs · GRU / BiLSTM · scikit-learn · AI Agents / Agentic Coding</p>
+            </div>
+            <div class="skill-row">
+              <span data-i18n="skills_systems">Systems &amp; Engineering</span>
+              <p>Rust (2024) · Go · TypeScript · HTML / JavaScript · React 19 · Tauri 2 · SQLite WAL + FTS5 · Docker · Git · GitHub · Linux · CI/CD</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="work" class="section shell" aria-labelledby="work-title">
+      <div class="section-heading">
+        <div>
+          <h2 id="work-title" data-i18n="projects_title">Passion Projects</h2>
+        </div>
+        <p data-i18n="projects_desc">Desktop applications, developer utilities, and network telemetry engines developed out of deep technical curiosity.</p>
+      </div>
+      <div id="featured-work" class="featured-work"></div>
+    </section>
+
+    <section id="scientific" class="section shell" aria-labelledby="more-title">
+      <div class="section-heading">
+        <div>
+          <h2 id="more-title" data-i18n="computing_title">Scientific Computing &amp; Research</h2>
+        </div>
+        <p data-i18n="computing_desc">Numerical optimization, GPU computing in Python, and labor economics research.</p>
+      </div>
+      <div id="additional-work" class="additional-grid"></div>
+    </section>
+
+    <section class="closing shell" aria-labelledby="closing-title">
+      <div class="closing-kicker mono" data-i18n="contact_kicker">Contact</div>
+      <h2 id="closing-title" data-i18n="contact_title">
+        Contact &amp; Profiles
+      </h2>
+      <div id="closing-contact" class="closing-contact"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer shell">
+    <div>
+      <strong data-i18n="footer_bio">Amirreza “Farnam” Taheri</strong> — Portfolio &amp; Curriculum Vitae
+    </div>
+    <div class="footer-actions">
+      <span class="footer-tag mono" data-i18n="location_tag">Tehran, Iran</span>
+      <button id="back-to-top" class="back-to-top-btn" type="button" aria-label="Back to top">
+        <span aria-hidden="true">↑</span> <span data-i18n="back_to_top">Top</span>
+      </button>
+    </div>
+  </footer>
+
+  <!-- Project Details Modal -->
+  <dialog id="project-modal" class="project-modal" aria-modal="true">
+    <div class="modal-backdrop"></div>
+    <div class="modal-dialog-content">
+      <div class="modal-header">
+        <div class="modal-meta">
+          <span id="modal-project-kind" class="project-kind"></span>
+          <span id="modal-project-score" class="score-chip"></span>
+        </div>
+        <button id="modal-close-btn" class="modal-close-btn" type="button" aria-label="Close modal">✕</button>
+      </div>
+      <h2 id="modal-project-title"></h2>
+      <p id="modal-project-subtitle" class="modal-subtitle"></p>
+      <div class="modal-section-title-row">
+        <div class="modal-section-title" data-i18n="modal_arch">System Architecture</div>
+        <div id="modal-arch-links" class="modal-arch-links"></div>
+      </div>
+      <div id="modal-arch-container" class="modal-arch-container">
+        <pre id="modal-project-diagram" class="architecture-diagram"></pre>
+        <div id="modal-arch-iframe-wrap" class="modal-arch-iframe-wrap" style="display: none;">
+          <iframe id="modal-arch-iframe" class="modal-arch-iframe" src="" title="System Architecture" loading="lazy" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+        </div>
+      </div>
+
+      <div class="modal-section-title" data-i18n="modal_bench">Benchmarks &amp; Specifications</div>
+      <div id="modal-project-benchmarks" class="modal-benchmarks-grid"></div>
+
+      <div class="modal-section-title" data-i18n="modal_highlights">Key Highlights</div>
+      <ul id="modal-project-bullets" class="bullet-ledger"></ul>
+
+      <div class="modal-footer">
+        <div id="modal-project-stack" class="tag-list"></div>
+        <a id="modal-project-link" class="button primary" href="#" target="_blank" rel="noreferrer">
+          <span aria-hidden="true">↗</span> <span data-i18n="modal_open_repo">Open Repository</span>
+        </a>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Command Palette -->
+  <dialog id="cmd-dialog" class="cmd-dialog" aria-modal="true" aria-label="Command Palette">
+    <div class="cmd-backdrop"></div>
+    <div class="cmd-box">
+      <div class="cmd-input-row">
+        <span class="cmd-search-icon" aria-hidden="true">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </span>
+        <input id="cmd-input" class="cmd-input" type="text" placeholder="Search projects, coursework, actions..." autocomplete="off" data-i18n-placeholder="cmd_placeholder" />
+        <kbd class="cmd-esc-kbd">ESC</kbd>
+      </div>
+      <div id="cmd-results" class="cmd-results" role="listbox"></div>
+      <div class="cmd-footer mono">
+        <span data-i18n="cmd_nav_hint">Use ↑ ↓ to navigate</span>
+        <span data-i18n="cmd_select_hint">↵ to select</span>
+        <span data-i18n="cmd_close_hint">ESC to close</span>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- High-Resolution Screenshot Lightbox Modal -->
+  <dialog id="screenshot-lightbox" class="screenshot-lightbox" aria-modal="true" aria-label="Screenshot Viewer">
+    <div class="lightbox-container">
+      <div class="lightbox-header">
+        <div class="lightbox-title-wrap">
+          <span id="lightbox-project-name" class="lightbox-project-name"></span>
+          <span id="lightbox-screenshot-label" class="lightbox-screenshot-label mono"></span>
+          <span id="lightbox-counter" class="lightbox-counter mono"></span>
+        </div>
+        <div class="lightbox-header-actions">
+          <button id="lightbox-close-btn" class="lightbox-close-btn" type="button" aria-label="Close screenshot viewer" title="Close (ESC)">✕</button>
+        </div>
+      </div>
+      <div class="lightbox-stage">
+        <button id="lightbox-prev-btn" class="lightbox-nav-btn prev" type="button" aria-label="Previous screenshot" title="Previous (Left Arrow)">‹</button>
+        <img id="lightbox-img" class="lightbox-img" src="" alt="Screenshot" />
+        <button id="lightbox-next-btn" class="lightbox-nav-btn next" type="button" aria-label="Next screenshot" title="Next (Right Arrow)">›</button>
+      </div>
+      <div id="lightbox-footer" class="lightbox-footer"></div>
+    </div>
+  </dialog>
+
+  <!-- Dynamic Toast Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+</body>
+</html>
