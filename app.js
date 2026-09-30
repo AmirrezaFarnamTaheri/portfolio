@@ -1323,6 +1323,29 @@
       // Active Singularity / Gravitational Well (Max 1 at a time)
       let activeBlackhole = null;
 
+      // Rubber-Sheet Cursor Indentation State (Gaussian Well)
+      const rubberSheetState = {
+        active: false,
+        x: 0,
+        y: 0,
+        depth: 0,
+        targetDepth: 0
+      };
+
+      // Concurrent Radial Damping Wave Ripples Ring Buffer (max 4)
+      const activeRipples = [];
+      function addManifoldRipple(rx, ry, intensity = 2.8) {
+        if (activeRipples.length >= 4) {
+          activeRipples.shift();
+        }
+        activeRipples.push({
+          x: rx,
+          y: ry,
+          intensity: intensity,
+          startTime: clock.getElapsedTime()
+        });
+      }
+
       // Mathematical Loss Function with Multi-Basin Minima & Saddles
       function getLossHeight(x, y, t) {
         const rSq = x * x + y * y;
@@ -1332,6 +1355,27 @@
         const ripples = Math.cos(rSq * 0.006 - t * 0.22) * 1.8 + Math.sin(0.26 * x + 0.18 * y) * 0.85;
 
         let h = macro + saddle + basin + ripples;
+
+        // Interactive "Rubber-Sheet" Cursor Warping (Gaussian Indentation Well)
+        if (rubberSheetState.depth > 0.001) {
+          const cdx = x - rubberSheetState.x;
+          const cdy = y - rubberSheetState.y;
+          const cdistSq = cdx * cdx + cdy * cdy;
+          h -= rubberSheetState.depth * Math.exp(-cdistSq * 0.048);
+        }
+
+        // Concurrent Dynamic Wave Ripples
+        for (let ri = 0; ri < activeRipples.length; ri++) {
+          const rp = activeRipples[ri];
+          const dt = t - rp.startTime;
+          if (dt >= 0 && dt < 2.5) {
+            const rdx = x - rp.x;
+            const rdy = y - rp.y;
+            const rdist = Math.sqrt(rdx * rdx + rdy * rdy);
+            const decay = Math.exp(-dt * 1.6) * rp.intensity;
+            h += Math.sin(rdist * 0.85 - dt * 6.5) * Math.exp(-rdist * 0.14) * decay;
+          }
+        }
 
         if (rippleIntensity > 0.01) {
           const dx = x - rippleX;
@@ -1471,7 +1515,16 @@
            vec3 saddleTint = uIsDark > 0.5 ? uSaddleColorDark : uSaddleColorLight;
 
            gl_FragColor.rgb = mix(gl_FragColor.rgb, saddleTint, saddleWeight * (uIsDark > 0.5 ? 0.28 : 0.16));
-           gl_FragColor.rgb = mix(gl_FragColor.rgb, isolineColor, line * (uIsDark > 0.5 ? 0.72 : 0.50));`
+           gl_FragColor.rgb = mix(gl_FragColor.rgb, isolineColor, line * (uIsDark > 0.5 ? 0.72 : 0.50));
+
+           // 3. Relativistic Gravitational Redshift near Singularity
+           float redshiftDepth = smoothstep(-1.2, -6.5, vManifoldPos.z);
+           if (redshiftDepth > 0.005) {
+             vec3 redshiftColor = uIsDark > 0.5 ? vec3(0.92, 0.20, 0.08) : vec3(0.85, 0.12, 0.05);
+             vec3 amberDoppler = uIsDark > 0.5 ? vec3(0.98, 0.72, 0.15) : vec3(0.95, 0.55, 0.08);
+             vec3 shift = mix(redshiftColor, amberDoppler, smoothstep(0.35, 0.85, redshiftDepth));
+             gl_FragColor.rgb = mix(gl_FragColor.rgb, shift, redshiftDepth * 0.78);
+           }`
         );
       };
 
@@ -2116,9 +2169,15 @@
             tangentCursorState.active = true;
             tangentCursorState.targetX = localP.x;
             tangentCursorState.targetY = localP.y;
+            rubberSheetState.active = true;
+            rubberSheetState.targetDepth = 1.35;
+            rubberSheetState.x = localP.x;
+            rubberSheetState.y = localP.y;
           } else {
             if (canvasWrap) canvasWrap.style.cursor = 'default';
             tangentCursorState.active = false;
+            rubberSheetState.active = false;
+            rubberSheetState.targetDepth = 0;
           }
         }
       }
@@ -2265,6 +2324,9 @@
 
         const elapsedTime = clock.getElapsedTime();
         customShaderUniforms.uTime.value = elapsedTime;
+
+        // Smoothly interpolate rubber-sheet indentation depth
+        rubberSheetState.depth += (rubberSheetState.targetDepth - rubberSheetState.depth) * 0.14;
 
         if (!prefersReduced) {
           // 1. Update Blackhole Lifecycle & Gradual Restoration
