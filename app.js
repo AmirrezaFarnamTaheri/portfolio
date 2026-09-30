@@ -1710,6 +1710,63 @@
         currZ: 0
       };
 
+      // --- 2.4 Geodesic Hyperspace Transit Arcs Pool ---
+      const transitArcsGroup = new THREE.Group();
+      manifoldGroup.add(transitArcsGroup);
+
+      const ARC_POINTS = 28;
+      const transitArcsPool = [];
+      for (let ai = 0; ai < 3; ai++) {
+        const arcPositions = new Float32Array(ARC_POINTS * 3);
+        const arcGeo = new THREE.BufferGeometry();
+        arcGeo.setAttribute('position', new THREE.BufferAttribute(arcPositions, 3));
+        const arcMat = new THREE.LineBasicMaterial({
+          color: isDark ? 0xc084fc : 0x9333ea,
+          transparent: true,
+          opacity: 0,
+          blending: THREE.AdditiveBlending,
+          linewidth: 2
+        });
+        const arcLine = new THREE.Line(arcGeo, arcMat);
+        arcLine.visible = false;
+        transitArcsGroup.add(arcLine);
+        transitArcsPool.push({
+          line: arcLine,
+          geo: arcGeo,
+          mat: arcMat,
+          positions: arcPositions,
+          active: false,
+          startTime: 0,
+          duration: 0.55
+        });
+      }
+
+      function triggerTransitArc(x0, y0, x1, y1, z1) {
+        const arc = transitArcsPool.find(a => !a.active) || transitArcsPool[0];
+        arc.active = true;
+        arc.startTime = clock.getElapsedTime();
+        arc.line.visible = true;
+        arc.mat.opacity = 0.95;
+
+        const z0 = getLossHeight(x0, y0, clock.getElapsedTime()) - 1.2;
+        const midX = (x0 + x1) * 0.5;
+        const midY = (y0 + y1) * 0.5;
+        const midZ = Math.max(z0, z1) + 6.8;
+
+        const pos = arc.positions;
+        for (let i = 0; i < ARC_POINTS; i++) {
+          const u = i / (ARC_POINTS - 1);
+          const invU = 1 - u;
+          const bx = invU * invU * x0 + 2 * invU * u * midX + u * u * x1;
+          const by = invU * invU * y0 + 2 * invU * u * midY + u * u * y1;
+          const bz = invU * invU * z0 + 2 * invU * u * midZ + u * u * z1;
+          pos[i * 3] = bx;
+          pos[i * 3 + 1] = by;
+          pos[i * 3 + 2] = bz;
+        }
+        arc.geo.attributes.position.needsUpdate = true;
+      }
+
       // --- 3. Interactive Probe Spawner & Trace System ---
       const probesGroup = new THREE.Group();
       manifoldGroup.add(probesGroup);
@@ -1955,6 +2012,42 @@
           throatRingMeshes.push(trMesh);
         }
 
+        // 10. 8-Node Quantum Accretion Ring (Non-Verbal Mass Indicator n/8)
+        const accretionRingGroup = new THREE.Group();
+        accretionRingGroup.rotation.order = 'ZXY';
+        accretionRingGroup.rotation.x = Math.PI / 2.6;
+        bhGroup.add(accretionRingGroup);
+
+        const accretionNodes = [];
+        const numAccretionNodes = 8;
+        const accretionRadius = 2.45;
+        const nodeGeo = new THREE.OctahedronGeometry(0.24, 0);
+
+        for (let ni = 0; ni < numAccretionNodes; ni++) {
+          const theta = (ni / numAccretionNodes) * Math.PI * 2;
+          const nodeMat = new THREE.MeshStandardMaterial({
+            color: isDark ? 0x1e293b : 0x94a3b8,
+            emissive: isDark ? 0x0284c7 : 0x0284c7,
+            emissiveIntensity: 0.08,
+            roughness: 0.25,
+            metalness: 0.6
+          });
+          const nodeMesh = new THREE.Mesh(nodeGeo, nodeMat);
+          nodeMesh.position.set(
+            accretionRadius * Math.cos(theta),
+            accretionRadius * Math.sin(theta),
+            0.05
+          );
+          accretionRingGroup.add(nodeMesh);
+          accretionNodes.push({
+            mesh: nodeMesh,
+            mat: nodeMat,
+            baseTheta: theta,
+            ignited: false,
+            flare: 0
+          });
+        }
+
         const initialZ = getLossHeight(spawnX, spawnY, clock.getElapsedTime());
         bhGroup.position.set(spawnX, spawnY, initialZ);
         bhGroup.scale.set(0.001, 0.001, 0.001);
@@ -1978,6 +2071,8 @@
           throatMesh: throatMesh,
           throatRingsGroup: throatRingsGroup,
           throatRingMeshes: throatRingMeshes,
+          accretionRingGroup: accretionRingGroup,
+          accretionNodes: accretionNodes,
           particleSystem: particleSystem,
           particleData: particleData
         };
@@ -2035,6 +2130,13 @@
           activeBlackhole.jetMesh2.visible = true;
           activeBlackhole.jetMesh2.material.color.setHex(isDark ? 0xc084fc : 0x9333ea);
           activeBlackhole.jetMesh2.material.opacity = 0.75;
+        }
+
+        if (activeBlackhole.accretionNodes) {
+          activeBlackhole.accretionNodes.forEach(node => {
+            node.ignited = true;
+            node.flare = 2.2;
+          });
         }
 
         if (typeof console !== 'undefined' && console.info) {
@@ -2136,6 +2238,22 @@
             if (activeBlackhole.lensMesh) activeBlackhole.lensMesh.material.color.setHex(dark ? 0x67e8f9 : 0x2563eb);
             if (activeBlackhole.particleSystem) activeBlackhole.particleSystem.material.color.setHex(dark ? 0x7dd3fc : 0x1d4ed8);
           }
+        }
+
+        transitArcsPool.forEach(arc => {
+          arc.mat.color.setHex(dark ? 0xc084fc : 0x9333ea);
+        });
+
+        if (activeBlackhole && activeBlackhole.accretionNodes) {
+          activeBlackhole.accretionNodes.forEach((node, ni) => {
+            const isLit = ni < (activeBlackhole.absorbedCount || 0) || activeBlackhole.isWormhole;
+            if (isLit) {
+              node.mat.emissive.setHex(activeBlackhole.isWormhole ? (dark ? 0xc084fc : 0x9333ea) : (dark ? 0x38bdf8 : 0x0284c7));
+            } else {
+              node.mat.color.setHex(dark ? 0x1e293b : 0x94a3b8);
+              node.mat.emissive.setHex(dark ? 0x0284c7 : 0x0284c7);
+            }
+          });
         }
       };
 
@@ -2510,6 +2628,12 @@
                   trm.material.dispose();
                 });
               }
+              if (activeBlackhole.accretionNodes) {
+                activeBlackhole.accretionNodes.forEach(node => {
+                  node.mesh.geometry.dispose();
+                  node.mat.dispose();
+                });
+              }
               activeBlackhole = null;
             } else {
               const progress = age / activeBlackhole.duration;
@@ -2557,6 +2681,44 @@
                   activeBlackhole.jetMesh2.rotation.z += 0.12;
                   activeBlackhole.jetMesh1.position.z = 2.2 + Math.sin(elapsedTime * 6.0) * 0.35;
                   activeBlackhole.jetMesh2.position.z = -2.2 - Math.sin(elapsedTime * 6.0) * 0.35;
+                }
+              }
+
+              // 8-Node Quantum Accretion Ring dynamics & node ignition flares
+              if (activeBlackhole.accretionRingGroup && activeBlackhole.accretionNodes) {
+                const nAbsorbed = activeBlackhole.absorbedCount || 0;
+                const spinSpeed = 0.015 + 0.005 * nAbsorbed;
+                activeBlackhole.accretionRingGroup.rotation.z += (activeBlackhole.isWormhole ? spinSpeed * 2.5 : spinSpeed);
+
+                const targetRadius = activeBlackhole.isWormhole ? 1.68 : 2.45;
+                const pulsePhase = elapsedTime * 4.0;
+
+                for (let ni = 0; ni < activeBlackhole.accretionNodes.length; ni++) {
+                  const node = activeBlackhole.accretionNodes[ni];
+                  const isLit = ni < nAbsorbed || activeBlackhole.isWormhole;
+                  if (node.flare > 0.01) {
+                    node.flare *= 0.92;
+                  } else {
+                    node.flare = 0;
+                  }
+
+                  if (isLit) {
+                    node.mat.emissive.setHex(activeBlackhole.isWormhole ? (isDark ? 0xc084fc : 0x9333ea) : (isDark ? 0x38bdf8 : 0x0284c7));
+                    const baseLum = activeBlackhole.isWormhole ? 0.95 : 0.65;
+                    const pulse = Math.sin(pulsePhase + ni * 0.78) * 0.18;
+                    node.mat.emissiveIntensity = Math.min(2.5, baseLum + pulse + node.flare);
+                    const sc = 1.0 + node.flare * 0.5 + Math.sin(pulsePhase + ni) * 0.12;
+                    node.mesh.scale.set(sc, sc, sc);
+                  } else {
+                    node.mat.emissive.setHex(isDark ? 0x0284c7 : 0x0284c7);
+                    node.mat.emissiveIntensity = 0.08;
+                    node.mesh.scale.set(0.85, 0.85, 0.85);
+                  }
+
+                  node.mesh.position.x = targetRadius * Math.cos(node.baseTheta);
+                  node.mesh.position.y = targetRadius * Math.sin(node.baseTheta);
+                  node.mesh.rotation.y += 0.03;
+                  node.mesh.rotation.x += 0.02;
                 }
               }
 
@@ -2636,6 +2798,11 @@
                   p.trailPositions[2] = exitZ - 0.49;
                   p.traceMesh.geometry.attributes.position.needsUpdate = true;
                   p.traceMesh.geometry.setDrawRange(0, 0);
+
+                  // Geodesic Hyperspace Transit Arc & exit shockwave
+                  triggerTransitArc(activeBlackhole.x, activeBlackhole.y, p.x, p.y, exitZ);
+                  addManifoldRipple(p.x, p.y, 3.2);
+
                   // Wormhole exit flare shockwave
                   rippleIntensity = 2.6;
                   rippleX = p.x;
@@ -2661,6 +2828,14 @@
                   if (activeBlackhole.startTime > elapsedTime - 0.08 * activeBlackhole.duration) {
                     activeBlackhole.startTime = elapsedTime - 0.08 * activeBlackhole.duration;
                   }
+
+                  // Ignite accretion node
+                  const anIdx = activeBlackhole.absorbedCount - 1;
+                  if (activeBlackhole.accretionNodes && activeBlackhole.accretionNodes[anIdx]) {
+                    activeBlackhole.accretionNodes[anIdx].ignited = true;
+                    activeBlackhole.accretionNodes[anIdx].flare = 2.4;
+                  }
+                  addManifoldRipple(activeBlackhole.x, activeBlackhole.y, 2.8);
 
                   // Accretion feeding shockwave ripple
                   rippleIntensity = 2.8;
@@ -2768,6 +2943,21 @@
             p.traceMesh.geometry.attributes.position.needsUpdate = true;
             p.traceMesh.geometry.setDrawRange(0, count < 2 ? 0 : count);
           }
+
+          // 3.5 Update Geodesic Hyperspace Transit Arcs
+          transitArcsPool.forEach(arc => {
+            if (arc.active) {
+              const arcAge = elapsedTime - arc.startTime;
+              if (arcAge >= arc.duration) {
+                arc.active = false;
+                arc.line.visible = false;
+                arc.mat.opacity = 0;
+              } else {
+                const u = arcAge / arc.duration;
+                arc.mat.opacity = (1.0 - u) * 0.95;
+              }
+            }
+          });
 
           // 4. Update Topographical Critical Point Landmarks (Dynamic Surface Locking)
           activeBeacons.forEach(b => {
