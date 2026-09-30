@@ -2371,11 +2371,17 @@
             return;
           }
 
-          // If text was selected anywhere, do not spawn probe
-          const selectedText = window.getSelection ? window.getSelection().toString().trim() : '';
-          if (selectedText.length > 0) {
-            pointerDownPos.active = false;
-            return;
+          // Clear inadvertent double/triple-click browser text selection when clicking hero background
+          if (window.getSelection && (!target || !target.closest('.hero-copy, .hero-ledger'))) {
+            try {
+              window.getSelection().removeAllRanges();
+            } catch (e) {}
+          } else {
+            const selectedText = window.getSelection ? window.getSelection().toString().trim() : '';
+            if (selectedText.length > 0) {
+              pointerDownPos.active = false;
+              return;
+            }
           }
 
           const rect = canvasEl.getBoundingClientRect();
@@ -2405,7 +2411,7 @@
 
             if (spawnCoord) {
               const now = Date.now();
-              if (now - lastClickTimestamp < 650) {
+              if (now - lastClickTimestamp < 750) {
                 clickStreakCount++;
               } else {
                 clickStreakCount = 1;
@@ -2414,6 +2420,7 @@
 
               if (clickStreakCount === 3) {
                 clickStreakCount = 0; // Reset streak upon triple click
+                lastClickTimestamp = 0;
                 if (!activeBlackhole) {
                   spawnBlackhole(spawnCoord.x, spawnCoord.y);
                 } else {
@@ -2548,6 +2555,7 @@
               activeProbes.forEach(p => {
                 if (p.absorbing) {
                   p.absorbing = false;
+                  p.absorbTimer = 0;
                   p.mesh.scale.set(1.0, 1.0, 1.0);
                 }
               });
@@ -2578,8 +2586,9 @@
               }
               // Smooth exponential lerp eliminates any instantaneous scale jumps from feeding rejuvenation or phase changes
               activeBlackhole.currentStrength += (targetS - activeBlackhole.currentStrength) * 0.12;
+              const s = activeBlackhole.currentStrength;
 
-              const scale = Math.max(0.001, activeBlackhole.currentStrength);
+              const scale = Math.max(0.001, s);
               activeBlackhole.group.scale.set(scale, scale, scale);
 
               const centerZ = getLossHeight(activeBlackhole.x, activeBlackhole.y, elapsedTime) + 0.45;
@@ -2724,6 +2733,8 @@
                 // --- EINSTEIN-ROSEN WORMHOLE PROTOCOL ---
                 if (distToB <= captureRadius * 1.15) {
                   // Ball enters the throat and is teleported/ejected across the manifold
+                  p.absorbing = false;
+                  p.absorbTimer = 0;
                   const exitAngle = Math.random() * Math.PI * 2;
                   const exitDist = 14 + Math.random() * 8;
                   p.x = Math.max(-28, Math.min(28, activeBlackhole.x + Math.cos(exitAngle) * exitDist));
@@ -2780,7 +2791,7 @@
                   p.mesh.position.set(p.x, p.y, plungeZ);
 
                   // Singularity Impact Moment: fully consumed at core
-                  if (p.absorbTimer >= 1.0 || distToB < 0.22) {
+                  if (p.absorbTimer >= 1.0 || (p.absorbTimer >= 0.35 && distToB < 0.22) || distToB < 0.08) {
                     p.swallowed = true;
 
                     // Rejuvenate black hole: add +1.5s lifespan (making it younger by winding back elapsed time)
@@ -2804,12 +2815,22 @@
                     rippleY = activeBlackhole.y;
 
                     // Check if 8 balls threshold reached -> WORMHOLE PHASE TRANSITION
-                    if (activeBlackhole.absorbedCount >= 8) {
+                    if (activeBlackhole.absorbedCount >= 8 && !activeBlackhole.isWormhole) {
                       activeBlackhole.isWormhole = true;
                       activeBlackhole.duration = 18.0; // Wormhole duration: 18 seconds
                       activeBlackhole.startTime = elapsedTime;
                       triggerWormholeTransition(elapsedTime);
                     }
+
+                    // Cleanly dispose and splice immediately to prevent runaway per-frame re-triggering
+                    probesGroup.remove(p.mesh);
+                    probesGroup.remove(p.traceMesh);
+                    p.mesh.geometry.dispose();
+                    p.mesh.material.dispose();
+                    p.traceMesh.geometry.dispose();
+                    p.traceMesh.material.dispose();
+                    activeProbes.splice(pIdx, 1);
+                    continue;
                   }
                   continue;
                 } else {
@@ -2960,7 +2981,7 @@
 
             const eps = 0.25;
             const gx = (getLossHeight(tx + eps, ty, elapsedTime) - getLossHeight(tx - eps, ty, elapsedTime)) / (2 * eps);
-            const gy = (getLossHeight(tx, ty + eps, elapsedTime) - getLossHeight(tx - eps, ty, elapsedTime)) / (2 * eps);
+            const gy = (getLossHeight(tx, ty + eps, elapsedTime) - getLossHeight(tx, ty - eps, elapsedTime)) / (2 * eps);
 
             tangentCursorGroup.position.set(tx, ty, tz + 0.12);
 
