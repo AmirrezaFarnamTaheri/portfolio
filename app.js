@@ -1491,74 +1491,30 @@
       const criticalPointsGroup = new THREE.Group();
       manifoldGroup.add(criticalPointsGroup);
 
-      function createTextBadgeSprite(text, isDarkTheme, accentColorHex) {
-        if (typeof document === 'undefined') return null;
-        const canvas = document.createElement('canvas');
-        canvas.width = 256;
-        canvas.height = 64;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return null;
-
-        ctx.clearRect(0, 0, 256, 64);
-        ctx.fillStyle = isDarkTheme ? 'rgba(7, 15, 30, 0.82)' : 'rgba(240, 246, 255, 0.88)';
-        ctx.strokeStyle = accentColorHex || (isDarkTheme ? 'rgba(56, 189, 248, 0.65)' : 'rgba(30, 86, 227, 0.65)');
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        if (ctx.roundRect) {
-          ctx.roundRect(8, 12, 240, 40, 8);
-        } else {
-          ctx.rect(8, 12, 240, 40);
-        }
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.font = '600 19px "Geist Mono", monospace';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillStyle = accentColorHex || (isDarkTheme ? '#38bdf8' : '#1e56e3');
-        ctx.fillText(text, 128, 32);
-
-        const tex = new THREE.CanvasTexture(canvas);
-        tex.needsUpdate = true;
-        const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, opacity: isDarkTheme ? 0.92 : 0.85 });
-        const sprite = new THREE.Sprite(mat);
-        sprite.scale.set(4.8, 1.2, 1.0);
-        return { sprite, canvas, ctx, texture: tex };
-      }
-
       const criticalPointsConfig = [
         {
           id: 'global-min',
-          label: 'min ℒ(θ)',
           x: 0,
           y: 0,
           phase: 0,
           colorDark: 0x34d399,
-          colorLight: 0x059669,
-          hexDark: '#34d399',
-          hexLight: '#059669'
+          colorLight: 0x059669
         },
         {
           id: 'saddle-pass',
-          label: 'saddle ∇²ℒ',
           x: -14,
           y: 14,
           phase: 1.8,
           colorDark: 0xc084fc,
-          colorLight: 0x6366f1,
-          hexDark: '#c084fc',
-          hexLight: '#6366f1'
+          colorLight: 0x6366f1
         },
         {
           id: 'local-min',
-          label: 'local min',
           x: 16,
           y: -14,
           phase: 3.2,
           colorDark: 0x38bdf8,
-          colorLight: 0x1e40af,
-          hexDark: '#38bdf8',
-          hexLight: '#1e40af'
+          colorLight: 0x1e40af
         }
       ];
 
@@ -1606,13 +1562,6 @@
         const tetherLine = new THREE.Line(tetherGeo, tetherMat);
         bGroup.add(tetherLine);
 
-        // Technical Monospace Typography Sprite
-        const badgeObj = createTextBadgeSprite(cfg.label, isDark, isDark ? cfg.hexDark : cfg.hexLight);
-        if (badgeObj && badgeObj.sprite) {
-          badgeObj.sprite.position.set(0, 0, 2.85);
-          bGroup.add(badgeObj.sprite);
-        }
-
         bGroup.position.set(cfg.x, cfg.y, getLossHeight(cfg.x, cfg.y, 0));
         criticalPointsGroup.add(bGroup);
 
@@ -1622,7 +1571,6 @@
           markerMesh: octMesh,
           groundRing: grMesh,
           tetherLine: tetherLine,
-          badgeObj: badgeObj,
           x: cfg.x,
           y: cfg.y,
           phase: cfg.phase
@@ -2068,25 +2016,6 @@
           b.markerMesh.material.emissive.setHex(c);
           b.groundRing.material.color.setHex(c);
           b.tetherLine.material.color.setHex(c);
-          if (b.badgeObj && b.badgeObj.ctx) {
-            const ctx = b.badgeObj.ctx;
-            ctx.clearRect(0, 0, 256, 64);
-            ctx.fillStyle = dark ? 'rgba(7, 15, 30, 0.82)' : 'rgba(240, 246, 255, 0.88)';
-            ctx.strokeStyle = dark ? 'rgba(56, 189, 248, 0.65)' : 'rgba(30, 86, 227, 0.65)';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            if (ctx.roundRect) ctx.roundRect(8, 12, 240, 40, 8);
-            else ctx.rect(8, 12, 240, 40);
-            ctx.fill();
-            ctx.stroke();
-
-            ctx.font = '600 19px "Geist Mono", monospace';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillStyle = dark ? b.cfg.hexDark : b.cfg.hexLight;
-            ctx.fillText(b.cfg.label, 128, 32);
-            b.badgeObj.texture.needsUpdate = true;
-          }
         });
 
         if (tRingMat) tRingMat.color.setHex(dark ? 0x38bdf8 : 0x1e56e3);
