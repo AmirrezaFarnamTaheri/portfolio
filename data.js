@@ -47,7 +47,7 @@ window.PORTFOLIO_DATA = {
     'LaTeX'
   ],
   thesis: {
-    title: 'Liquidity, Mismatch, and Job Choice: A Structural Search Model of the Labor Market',
+    title: 'Liquidity, Mismatch, and Job Choice',
     subtitle: 'Master’s Thesis Research · Department of Economics and Finance, TeIAS',
     status: 'In Progress (Graduate Thesis)',
     advisor: 'Prof. Alireza Sepahsalari',
@@ -56,7 +56,7 @@ window.PORTFOLIO_DATA = {
     methodology: [
       'Continuous-time Bellman equations with endogenous asset accumulation and reservation wage policies.',
       'Numerical solution via Value Function Iteration (VFI) and continuous-state dynamic programming.',
-      'Data science & econometric analysis: Empirical microdata analysis and structural moment estimation with NLSY79 and O*NET; identified and reported official survey variable title errata (W1382000, W1391400) confirmed by CHRR archivist at The Ohio State University.'
+      'Empirical microdata analysis and structural moment estimation with NLSY79 and O*NET; identified and reported official survey variable title errata (W1382000, W1391400) confirmed by CHRR archivist at The Ohio State University.'
     ],
     dataSources: ['NLSY79 (National Longitudinal Survey of Youth)', 'O*NET Occupational Requirements Database', 'CPS (Current Population Survey)'],
     tools: ['Python', 'Stata', 'R', 'NumPy / SciPy', 'Dynamic Programming', 'LaTeX'],
@@ -75,8 +75,7 @@ window.PORTFOLIO_DATA = {
     },
     {
       title: 'TeIAS Merit-Based Scholarship',
-      year: '2023 & 2025',
-      context: 'Competitive full graduate merit scholarship awarded by Tehran Institute for Advanced Studies'
+      year: '2023 & 2025'
     }
   ],
   stackPillars: [],
@@ -265,7 +264,7 @@ window.PORTFOLIO_DATA = {
       href: 'https://github.com/AmirrezaFarnamTaheri/Econometrics-I'
     },
     {
-      course: 'Econometrics II (Applied Econometrics)',
+      course: 'Econometrics II',
       category: 'econometrics',
       score: '19.0 / 20',
       scoreNumeric: 19.0,
