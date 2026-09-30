@@ -1684,6 +1684,32 @@
         gradY: 0
       };
 
+      // --- 2.3 Kinetic Slingshot Aiming Line (Elastic Dotted Trajectory) ---
+      const slingshotPositions = new Float32Array(6);
+      const slingshotGeo = new THREE.BufferGeometry();
+      slingshotGeo.setAttribute('position', new THREE.BufferAttribute(slingshotPositions, 3));
+      const slingshotMat = new THREE.LineDashedMaterial({
+        color: isDark ? 0x38bdf8 : 0x1e56e3,
+        dashSize: 0.65,
+        gapSize: 0.35,
+        transparent: true,
+        opacity: 0.92,
+        linewidth: 2
+      });
+      const slingshotLine = new THREE.Line(slingshotGeo, slingshotMat);
+      slingshotLine.visible = false;
+      manifoldGroup.add(slingshotLine);
+
+      const slingshotState = {
+        active: false,
+        startX: 0,
+        startY: 0,
+        startZ: 0,
+        currX: 0,
+        currY: 0,
+        currZ: 0
+      };
+
       // --- 3. Interactive Probe Spawner & Trace System ---
       const probesGroup = new THREE.Group();
       manifoldGroup.add(probesGroup);
@@ -1692,7 +1718,7 @@
       const MAX_PROBES = 8;
       const MAX_TRAIL_POINTS = 160;
 
-      function spawnProbe(spawnX, spawnY) {
+      function spawnProbe(spawnX, spawnY, initVx = 0, initVy = 0) {
         // Limit total active probes for optimal performance
         if (activeProbes.length >= MAX_PROBES) {
           const oldest = activeProbes.shift();
@@ -1736,8 +1762,8 @@
         const probeObj = {
           x: spawnX,
           y: spawnY,
-          vx: (Math.random() - 0.5) * 0.04,
-          vy: (Math.random() - 0.5) * 0.04,
+          vx: initVx || (Math.random() - 0.5) * 0.04,
+          vy: initVy || (Math.random() - 0.5) * 0.04,
           history: [{ x: spawnX, y: spawnY }],
           mesh: pMesh,
           traceMesh: traceMesh,
@@ -1748,6 +1774,7 @@
         activeProbes.push(probeObj);
 
         // Trigger surface impact ripple
+        addManifoldRipple(spawnX, spawnY, Math.min(4.2, 2.0 + Math.hypot(initVx, initVy) * 3.5));
         rippleIntensity = 2.0;
         rippleX = spawnX;
         rippleY = spawnY;
@@ -2074,6 +2101,7 @@
         if (tRingMat) tRingMat.color.setHex(dark ? 0x38bdf8 : 0x1e56e3);
         if (arrowStemMat) arrowStemMat.color.setHex(dark ? 0x7dd3fc : 0x2563eb);
         if (arrowConeMat) arrowConeMat.color.setHex(dark ? 0x7dd3fc : 0x2563eb);
+        if (slingshotMat) slingshotMat.color.setHex(dark ? 0x38bdf8 : 0x1e56e3);
 
         activeProbes.forEach(p => {
           p.mesh.material.color.setHex(dark ? 0x38bdf8 : 0x1e56e3);
@@ -2125,10 +2153,50 @@
       function handlePointerDown(clientX, clientY) {
         isDragging = true;
         tangentCursorState.active = false;
+        rubberSheetState.targetDepth = 0;
         if (canvasWrap) canvasWrap.style.cursor = 'grabbing';
         prevMouseX = clientX;
         prevMouseY = clientY;
-        pointerDownPos = { x: clientX, y: clientY, time: Date.now(), active: true };
+
+        let onMesh = false;
+        let localStartX = 0, localStartY = 0, localStartZ = 0;
+        if (canvasEl) {
+          const rect = canvasEl.getBoundingClientRect();
+          if (clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom) {
+            const nx = ((clientX - rect.left) / rect.width) * 2 - 1;
+            const ny = -((clientY - rect.top) / rect.height) * 2 + 1;
+            clickPointer.set(nx, ny);
+            raycaster.setFromCamera(clickPointer, camera);
+            const intersects = raycaster.intersectObject(skinMesh);
+            if (intersects.length > 0) {
+              onMesh = true;
+              const lp = skinMesh.worldToLocal(intersects[0].point.clone());
+              localStartX = lp.x;
+              localStartY = lp.y;
+              localStartZ = lp.z;
+            }
+          }
+        }
+
+        pointerDownPos = {
+          x: clientX,
+          y: clientY,
+          time: Date.now(),
+          active: true,
+          onMesh: onMesh,
+          meshX: localStartX,
+          meshY: localStartY,
+          meshZ: localStartZ
+        };
+
+        slingshotState.active = false;
+        slingshotState.startX = localStartX;
+        slingshotState.startY = localStartY;
+        slingshotState.startZ = localStartZ;
+        slingshotState.currX = localStartX;
+        slingshotState.currY = localStartY;
+        slingshotState.currZ = localStartZ;
+        if (slingshotLine) slingshotLine.visible = false;
       }
 
       function handlePointerMove(clientX, clientY) {
@@ -2137,6 +2205,8 @@
         if (clientX < rect.left || clientX > rect.right || clientY < rect.top || clientY > rect.bottom) {
           if (canvasWrap) canvasWrap.style.cursor = 'default';
           tangentCursorState.active = false;
+          rubberSheetState.active = false;
+          rubberSheetState.targetDepth = 0;
           return;
         }
 
@@ -2147,13 +2217,61 @@
 
         if (isDragging) {
           tangentCursorState.active = false;
-          if (canvasWrap) canvasWrap.style.cursor = 'grabbing';
+          rubberSheetState.targetDepth = 0;
           const deltaX = clientX - prevMouseX;
           const deltaY = clientY - prevMouseY;
-          manifoldGroup.rotation.z += deltaX * 0.005;
-          manifoldGroup.rotation.x += deltaY * 0.003;
           prevMouseX = clientX;
           prevMouseY = clientY;
+
+          const dragDist = Math.hypot(clientX - pointerDownPos.x, clientY - pointerDownPos.y);
+          if (pointerDownPos.onMesh && dragDist > 14) {
+            // Kinetic Slingshot Aiming Mode
+            slingshotState.active = true;
+            if (canvasWrap) canvasWrap.style.cursor = 'crosshair';
+
+            clickPointer.set(nx, ny);
+            raycaster.setFromCamera(clickPointer, camera);
+            const intersects = raycaster.intersectObject(skinMesh);
+            let currX = slingshotState.startX, currY = slingshotState.startY;
+            if (intersects.length > 0) {
+              const lp = skinMesh.worldToLocal(intersects[0].point.clone());
+              currX = lp.x;
+              currY = lp.y;
+            } else {
+              const groundPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+              const planePt = new THREE.Vector3();
+              const localRay = raycaster.ray.clone().applyMatrix4(manifoldGroup.matrixWorld.clone().invert());
+              if (localRay.intersectPlane(groundPlane, planePt)) {
+                currX = Math.max(-32, Math.min(32, planePt.x));
+                currY = Math.max(-32, Math.min(32, planePt.y));
+              }
+            }
+            slingshotState.currX = currX;
+            slingshotState.currY = currY;
+
+            const startZ = getLossHeight(slingshotState.startX, slingshotState.startY, clock.getElapsedTime()) + 0.35;
+            const currZ = getLossHeight(currX, currY, clock.getElapsedTime()) + 0.35;
+
+            const sPos = slingshotGeo.attributes.position.array;
+            sPos[0] = slingshotState.startX;
+            sPos[1] = slingshotState.startY;
+            sPos[2] = startZ;
+            sPos[3] = currX;
+            sPos[4] = currY;
+            sPos[5] = currZ;
+            slingshotGeo.attributes.position.needsUpdate = true;
+            slingshotLine.computeLineDistances();
+            slingshotLine.visible = true;
+
+            const pullDist = Math.hypot(slingshotState.startX - currX, slingshotState.startY - currY);
+            const tension = Math.min(1.0, pullDist / 12.0);
+            slingshotMat.color.setHex(isDark ? (tension > 0.6 ? 0xf59e0b : 0x38bdf8) : (tension > 0.6 ? 0xd97706 : 0x1e56e3));
+          } else if (!slingshotState.active) {
+            // Camera Orbit
+            if (canvasWrap) canvasWrap.style.cursor = 'grabbing';
+            manifoldGroup.rotation.z += deltaX * 0.005;
+            manifoldGroup.rotation.x += deltaY * 0.003;
+          }
         } else {
           // Accurate mathematical raycast sync with 3D loss surface
           clickPointer.set(nx, ny);
@@ -2193,6 +2311,27 @@
           isDragging = false;
           return;
         }
+
+        if (slingshotState.active) {
+          isDragging = false;
+          if (slingshotLine) slingshotLine.visible = false;
+          slingshotState.active = false;
+          pointerDownPos.active = false;
+
+          const pullX = slingshotState.startX - slingshotState.currX;
+          const pullY = slingshotState.startY - slingshotState.currY;
+          const pullDist = Math.hypot(pullX, pullY);
+          if (pullDist > 0.5) {
+            const launchSpeed = Math.min(0.55, pullDist * 0.045);
+            const initVx = (pullX / pullDist) * launchSpeed;
+            const initVy = (pullY / pullDist) * launchSpeed;
+            spawnProbe(slingshotState.startX, slingshotState.startY, initVx, initVy);
+          } else {
+            spawnProbe(slingshotState.startX, slingshotState.startY);
+          }
+          return;
+        }
+
         isDragging = false;
         const dist = Math.hypot(clientX - pointerDownPos.x, clientY - pointerDownPos.y);
         const elapsed = Date.now() - pointerDownPos.time;
