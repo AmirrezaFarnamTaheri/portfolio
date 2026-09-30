@@ -1,0 +1,297 @@
+\documentclass[10pt,a4paper]{article}
+
+\usepackage{amsmath,amssymb}
+\usepackage[a4paper, margin=9.5mm, top=8.5mm, bottom=8.5mm]{geometry}
+\usepackage[default,semibold]{sourcesanspro}
+\usepackage[scale=0.88]{sourcecodepro}
+\usepackage{paracol}
+\usepackage{xcolor}
+\usepackage[hypertexnames=false]{hyperref}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{microtype}
+\usepackage{tabularx}
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+
+% --- Portfolio Palette Definition ---
+\definecolor{ink}{HTML}{0F172A}        % Primary slate-900
+\definecolor{slate800}{HTML}{1E293B}   % Dark slate
+\definecolor{muted}{HTML}{475569}      % Subtitles / slate-600
+\definecolor{faint}{HTML}{64748B}      % Minor details / slate-500
+\definecolor{accent}{HTML}{0284C7}     % Highlight / sky-600
+\definecolor{accentdark}{HTML}{0369A1} % Sky-700
+\definecolor{linecol}{HTML}{CBD5E1}    % Slate-300
+\definecolor{chipbg}{HTML}{F1F5F9}     % Slate-100
+\definecolor{chipborder}{HTML}{E2E8F0} % Slate-200
+\definecolor{cardbg}{HTML}{F8FAFC}     % Slate-50
+\definecolor{gold}{HTML}{D97706}       % Amber-600 for distinctions
+\definecolor{goldbg}{HTML}{FEF3C7}     % Amber-100
+\definecolor{goldborder}{HTML}{FDE68A} % Amber-200
+
+\color{ink}
+\pagestyle{empty}
+\emergencystretch=2em
+
+\hypersetup{
+  colorlinks=true,
+  urlcolor=accentdark,
+  linkcolor=accentdark,
+  pdftitle={Resume — Farnam Taheri},
+  pdfauthor={Amirreza Farnam Taheri}
+}
+
+% --- Custom Badges ---
+\newcommand{\scorebadge}[1]{%
+  \tcbox[on line, colback=chipbg, colframe=chipborder, arc=2pt, boxrule=0.45pt, boxsep=0pt, left=3.5pt, right=3.5pt, top=1.2pt, bottom=1.2pt]{%
+    \scriptsize\bfseries\color{slate800}#1%
+  }%
+}
+
+\newcommand{\goldbadge}[1]{%
+  \tcbox[on line, colback=goldbg, colframe=goldborder, arc=2pt, boxrule=0.45pt, boxsep=0pt, left=3.5pt, right=3.5pt, top=1.2pt, bottom=1.2pt]{%
+    \scriptsize\bfseries\color{gold}#1%
+  }%
+}
+
+% --- Section Formats ---
+\newcommand{\resumesection}[1]{%
+  \vspace{5pt}%
+  \noindent%
+  \begingroup%
+  \color{ink}\bfseries\fontsize{9pt}{10.5pt}\selectfont%
+  \textcolor{accent}{\rule[-0.5pt]{2.5pt}{9pt}}\hspace{4pt}%
+  \MakeUppercase{#1}%
+  \hspace{4pt}\leaders\hrule height 0.4pt depth 0pt\hfill\null%
+  \endgroup%
+  \vspace{2.5pt}%
+}
+
+\setlist[itemize]{
+  leftmargin=9pt,
+  labelsep=3.5pt,
+  itemsep=1pt,
+  topsep=1pt,
+  parsep=0pt
+}
+\renewcommand{\labelitemi}{\textcolor{accent}{\raisebox{0.5pt}{\tiny$\bullet$}}}
+
+\begin{document}
+
+% ==============================================================================
+% HEADER
+% ==============================================================================
+\noindent
+\begin{minipage}[b]{0.64\textwidth}
+  {\fontsize{21pt}{23pt}\bfseries\color{ink} Amirreza ``Farnam'' Taheri}\\[3pt]
+  {\fontsize{8.5pt}{11pt}\bfseries\color{accent}
+   MSc in Economics \ $\cdot$ \ Structural Modeling \ $\cdot$ \ Econometrics\\[1.5pt]
+   Machine Learning \& Deep Learning}
+\end{minipage}%
+\hfill
+\begin{minipage}[b]{0.35\textwidth}
+  \raggedleft\footnotesize\color{muted}
+  \faEnvelope\ \ \href{mailto:TaheriFarnam@Gmail.com}{TaheriFarnam@Gmail.com}\\[1.5pt]
+  \faPhone*\ \ +98 999 994 6242\\[1.5pt]
+  \faGithub\ \ \href{https://github.com/AmirrezaFarnamTaheri}{github.com/AmirrezaFarnamTaheri}\\[1.5pt]
+  \faLinkedin\ \ \href{https://ir.linkedin.com/in/amirreza-farnam-taheri-2691b1201}{linkedin.com/in/amirreza-farnam-taheri}\\[1.5pt]
+  \faMapMarker*\ \ \textcolor{faint}{Tehran, Iran}
+\end{minipage}
+
+\vspace{3.5pt}
+\hrule height 1pt \relax
+\vspace{4.5pt}
+
+% ==============================================================================
+% PROFILE SUMMARY
+% ==============================================================================
+\noindent
+{\fontsize{8.5pt}{11pt}\selectfont\color{slate800}
+Graduate student in Economics at \textbf{\href{https://teias.institute}{Tehran Institute for Advanced Studies (TeIAS)}}. Research in labor economics, empirical econometrics, and structural search-and-matching models supervised by \textbf{\href{https://www.sepahsalari.com/}{Prof. Alireza Sepahsalari}}. Focused on dynamic structural modeling, microeconometrics, machine learning, and deep learning in Python, Stata, and R, alongside software systems engineering in Rust, Go, and TypeScript.
+}
+
+\vspace{3pt}
+
+% ==============================================================================
+% TWO-COLUMN BODY VIA PARACOL
+% ==============================================================================
+\setlength{\columnsep}{5mm}
+\columnratio{0.62}
+
+\begin{paracol}{2}
+
+% ------------------------------------------------------------------------------
+% LEFT COLUMN: THESIS, COURSEWORK, PROJECTS
+% ------------------------------------------------------------------------------
+
+% --- MASTER'S THESIS RESEARCH ---
+\resumesection{Master's Thesis Research}
+
+\noindent
+\textbf{\fontsize{8.5pt}{10pt}\selectfont Liquidity, Mismatch, and Job Choice: A Structural Search Model} \hfill \scorebadge{Thesis}\\[1.5pt]
+{\scriptsize\color{muted} Department of Economics and Finance, TeIAS \ $\cdot$ \ Advisor: \href{https://www.sepahsalari.com/}{Prof. Alireza Sepahsalari}}
+
+\vspace{1.5pt}
+\begin{itemize}
+  \item Continuous-time Bellman equations with endogenous asset accumulation and reservation wage policies.
+  \item Numerical solution via Value Function Iteration (VFI) and continuous-state dynamic programming.
+  \item \textbf{Data science \& econometric analysis:} Microdata analysis and moment estimation with NLSY79 and O*NET; reported official survey variable title errata (\texttt{W1382000}, \texttt{W1391400}), confirmed by OSU CHRR archivist.
+\end{itemize}
+
+\vspace{1.5pt}
+\noindent
+{\scriptsize
+\textbf{Microdata:} NLSY79, O*NET, CPS \ $\cdot$ \ \textbf{Stack:} Python, Stata, R, Dynamic Programming, LaTeX
+}
+
+% --- GRADUATE & MINOR COURSEWORK ---
+\resumesection{Graduate \& Minor Coursework}
+
+\noindent
+\textbf{Econometrics I} \hfill \scorebadge{19.3 / 20}\\
+{\scriptsize\color{muted} Tools: Stata, LaTeX \ $\cdot$ \ \href{https://github.com/AmirrezaFarnamTaheri/Econometrics-I}{\color{accent}\faExternalLink*\ GitHub}}\\
+{\scriptsize Classical Linear Regression $\cdot$ Asymptotic Theory $\cdot$ Hypothesis Testing $\cdot$ Instrumental Variables (IV/2SLS)}
+
+\vspace{2.5pt}
+\noindent
+\textbf{Econometrics II (Applied Econometrics)} \hfill \scorebadge{19.0 / 20}\\
+{\scriptsize\color{muted} Tools: R, R Markdown \ $\cdot$ \ \href{https://github.com/AmirrezaFarnamTaheri/Metric-II-Homeworks}{\color{accent}\faExternalLink*\ GitHub}}\\
+{\scriptsize Generalized Method of Moments (GMM) $\cdot$ Panel Data \& Fixed Effects $\cdot$ DiD \& Synthetic DiD $\cdot$ RDD $\cdot$ IV}
+
+\vspace{2.5pt}
+\noindent
+\textbf{Macroeconomics I} \hfill \scorebadge{19.0 / 20}\\
+{\scriptsize\color{muted} Tools: Python, MATLAB, Dynare, LaTeX \ $\cdot$ \ \href{https://github.com/AmirrezaFarnamTaheri/Macroeconomics-I}{\color{accent}\faExternalLink*\ GitHub}}\\
+{\scriptsize Stochastic RBC Simulation $\cdot$ Money \& Govt in RBC $\cdot$ Job Search (McCall \& DMP) $\cdot$ Dynamic Programming}
+
+\vspace{2.5pt}
+\noindent
+\textbf{Machine Learning} \hfill \scorebadge{18.5 / 20}\\
+{\scriptsize\color{muted} Tools: Python, scikit-learn, NumPy, Pandas \ $\cdot$ \ \href{https://github.com/AmirrezaFarnamTaheri/Machine-Learning}{\color{accent}\faExternalLink*\ GitHub}}\\
+{\scriptsize Supervised Learning \& Regularization $\cdot$ SVM \& Kernel Methods $\cdot$ Tree Ensembles $\cdot$ Time-Series $\cdot$ Clustering}
+
+\vspace{2.5pt}
+\noindent
+\textbf{Neural Networks \& Deep Learning} \hfill \scorebadge{17.0 / 20}\\
+{\scriptsize\color{muted} Tools: Python, PyTorch, Transformers, LoRA \ $\cdot$ \ \href{https://github.com/AmirrezaFarnamTaheri/Deep-Learning-2025}{\color{accent}\faExternalLink*\ GitHub}}\\
+{\scriptsize Backprop \& Optimization $\cdot$ CNNs $\cdot$ Sequential Models (RNN, GRU, BiLSTM) $\cdot$ Transformers $\cdot$ RL (DQN) $\cdot$ LoRA}
+
+\vspace{3pt}
+\noindent
+\textbf{Selected Graduate Courses:}\\
+{\scriptsize
+$\bullet$ Microeconomics II (Game Theory): \textbf{20.0 / 20} \quad
+$\bullet$ Mathematics for Economists: \textbf{19.3 / 20}\\
+$\bullet$ Macroeconomics II: \textbf{19.0 / 20} (Python $\cdot$ MATLAB) \quad
+$\bullet$ Contract Theory: \textbf{18.5 / 20}\\
+$\bullet$ Microeconomics I: \textbf{18.1 / 20}
+}
+
+\vspace{3pt}
+\noindent
+\textbf{Selected Undergrad Courses:}\\
+{\scriptsize
+$\bullet$ Econometrics (Minor): \textbf{20.0 / 20} (Stata) \quad
+$\bullet$ Macroeconomics (Minor): \textbf{20.0 / 20}\\
+$\bullet$ Game Theory (Minor): \textbf{20.0 / 20} \quad
+$\bullet$ Research Method \& Report Writing: \textbf{19.5 / 20}\\
+$\bullet$ Calculus II: \textbf{17.6 / 20} \quad
+$\bullet$ Engineering Economics: \textbf{17.0 / 20} \quad
+$\bullet$ Numerical Analysis: \textbf{16.5 / 20}
+}
+
+% --- FEATURED PROJECTS ---
+\resumesection{Featured Projects}
+
+\noindent
+\textbf{Scriptor} \ $\cdot$ \ {\scriptsize Local-first Research \& Knowledge Workspace} \hfill \href{https://github.com/AmirrezaFarnamTaheri/Scriptor}{\scriptsize\color{accent}\faGithub\ Repo $\nearrow$}\\
+{\scriptsize\color{muted}\textbf{Stack:} Rust 1.96, React 19, TypeScript, Tauri 2, SQLite FTS5, Pandoc, MCP, Git}
+\begin{itemize}
+  \item Tauri 2 architecture with Rust kernel core and React 19 / TypeScript renderer.
+  \item SQLite WAL + FTS5 indexing, HMAC-authenticated local RPC, and ts-rs contracts.
+  \item Deterministic Pandoc export (HTML, PDF, DOCX, LaTeX, ePub) and native 3-way Git merge.
+  \item Automated release engineering with CycloneDX SBOM, SHA-256 provenance, Playwright E2E.
+\end{itemize}
+
+\vspace{2.5pt}
+\noindent
+\textbf{WinCare} \ $\cdot$ \ {\scriptsize System Diagnostics \& Telemetry Platform} \hfill \href{https://github.com/AmirrezaFarnamTaheri/WinCare}{\scriptsize\color{accent}\faGithub\ Repo $\nearrow$}\\
+{\scriptsize\color{muted}\textbf{Stack:} WinUI 3, .NET 8, C\#, Rust 2024, ONNX Runtime, DirectML}
+\begin{itemize}
+  \item Hybrid .NET 8 / WinUI 3 architecture with high-performance Rust core engine.
+  \item Local ONNX Runtime inference with DirectML hardware acceleration for anomaly detection.
+  \item Windows Job Objects process isolation, telemetry inspection, and policy-governed maintenance.
+\end{itemize}
+
+% ------------------------------------------------------------------------------
+% RIGHT COLUMN: CORE STACK, EDUCATION & HONORS
+% ------------------------------------------------------------------------------
+\switchcolumn
+
+% --- CORE TECHNICAL STACK ---
+\resumesection{Core Technical Stack}
+
+\noindent
+{\raggedright
+\textbf{\fontsize{8pt}{9.5pt}\selectfont Structural Modeling \& Econometrics}\\
+{\scriptsize Continuous-Time Bellman Equations, Dynamic Programming, Value Function Iteration (VFI), SMM / Structural Estimation, Panel Data Econometrics, GMM, 2SLS / Instrumental Variables, Nonparametric Smoothing, Dynare / MATLAB, Stata, Python, R, LaTeX\par}
+
+\vspace{4pt}
+\noindent
+\textbf{\fontsize{8pt}{9.5pt}\selectfont Data Science \& Data Engineering}\\
+{\scriptsize Survey Microdata Processing (NLSY79, O*NET, HEIS, LFS), SQL, ETL Data Pipelines, Pandas, NumPy, SciPy, Data Cleaning \& Imputation, Nonparametric Smoothing\par}
+
+\vspace{4pt}
+\noindent
+\textbf{\fontsize{8pt}{9.5pt}\selectfont Machine Learning \& Deep Learning}\\
+{\scriptsize PyTorch, TensorFlow, scikit-learn, Transformers, LoRA Instruction Tuning, Reinforcement Learning (DQN), Time-Series Forecasting, AI Agents / Agentic Coding\par}
+
+\vspace{4pt}
+\noindent
+\textbf{\fontsize{8pt}{9.5pt}\selectfont Systems \& Software Engineering}\\
+{\scriptsize Rust 2024, Go, TypeScript, React 19, Tauri 2, WinUI 3 / C\# .NET 9, SQLite FTS5, Docker, Git, GitHub Actions, Linux, CI/CD\par}
+}
+
+% --- EDUCATION & HONORS ---
+\resumesection{Education \& Honors}
+
+\noindent
+\textbf{M.Sc. in Economics} \hfill \scorebadge{18.72 / 20}\\
+{\footnotesize Tehran Institute for Advanced Studies (TeIAS)}\\
+{\scriptsize\color{muted} Sep 2023 --- Present}\\
+{\scriptsize Thesis advisor: \href{https://www.sepahsalari.com/}{Prof. Alireza Sepahsalari}}
+
+\vspace{4.5pt}
+\noindent
+\textbf{Economics Minor} \hfill \scorebadge{19.20 / 20}\\
+{\footnotesize Amirkabir University of Technology (AUT)}\\
+{\scriptsize\color{muted} Sep 2018 --- Sep 2023}\\
+{\scriptsize Completed alongside engineering degree. Key courses: Econometrics (20.0), Macro (20.0), Game Theory (20.0).}
+
+\vspace{4.5pt}
+\noindent
+\textbf{B.Sc. in Civil Engineering} \hfill \scorebadge{15.69 / 20}\\
+{\footnotesize Amirkabir University of Technology (AUT)}\\
+{\scriptsize\color{muted} Sep 2018 --- Sep 2023}
+
+\vspace{6pt}
+\noindent
+\begingroup
+\color{accent}\bfseries\fontsize{8.5pt}{10pt}\selectfont
+\faAward\ HONORS \& DISTINCTIONS
+\endgroup
+
+\vspace{3pt}
+\noindent
+\begin{tcolorbox}[colback=cardbg, colframe=chipborder, arc=3pt, boxrule=0.5pt, boxsep=0pt, left=5pt, right=5pt, top=4pt, bottom=4pt]
+  \noindent
+  \textbf{\fontsize{8pt}{9.5pt}\selectfont \textcolor{gold}{$\bigstar$} Rank 27 --- Master's Konkur} \hfill \goldbadge{2023}\\[1.5pt]
+  {\scriptsize\color{muted} Nationwide entrance exam for Masters in Economics.}\\[4pt]
+  \noindent
+  \textbf{\fontsize{8pt}{9.5pt}\selectfont \textcolor{gold}{$\bigstar$} TeIAS Merit Scholarship} \hfill \goldbadge{2023 \& 2025}\\[1.5pt]
+  {\scriptsize\color{muted} Competitive full graduate merit scholarship awarded by TeIAS.}
+\end{tcolorbox}
+
+\end{paracol}
+
+\end{document}
