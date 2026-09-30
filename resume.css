@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600;700&family=Vazirmatn:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@400;500;600;700&family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
   --accent: #1e56e3;
@@ -13,6 +13,7 @@
   --bg: #f1f5f9;
   --font-sans: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-mono: 'Geist Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  --font-persian: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Tahoma, 'IRANSans', system-ui, sans-serif;
 }
 
 * {
@@ -540,17 +541,49 @@ h2 {
 }
 
 /* ==========================================================================
-   RTL Layout & Persian Typography (Vazirmatn) for Resume
+   RTL Layout & Enhanced Persian Typography (Vazirmatn) for Resume
    ========================================================================== */
 
 html[dir="rtl"] body {
-  font-family: 'Vazirmatn', var(--font-sans);
+  font-family: var(--font-persian);
   direction: rtl;
   text-align: right;
+  font-feature-settings: "kern" 1, "liga" 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html[dir="rtl"] h1 {
+  font-family: var(--font-persian);
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: 0 !important;
+}
+
+html[dir="rtl"] h2 {
+  font-family: var(--font-persian);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0 !important;
+  text-transform: none;
+}
+
+html[dir="rtl"] h3,
+html[dir="rtl"] .resume-item h3 {
+  font-family: var(--font-persian);
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: 0 !important;
 }
 
 html[dir="rtl"] .resume-roles {
-  font-family: 'Vazirmatn', var(--font-mono);
+  font-family: var(--font-persian);
+  font-weight: 600;
+  font-size: 11px;
+  line-height: 1.4;
+  letter-spacing: 0 !important;
 }
 
 html[dir="rtl"] .resume-contact {
@@ -558,7 +591,35 @@ html[dir="rtl"] .resume-contact {
   direction: ltr;
 }
 
+html[dir="rtl"] .summary {
+  font-family: var(--font-persian);
+  font-size: 11px;
+  line-height: 1.7;
+  letter-spacing: 0 !important;
+  text-align: justify;
+  text-justify: inter-word;
+}
+
+html[dir="rtl"] .resume-item p {
+  font-family: var(--font-persian);
+  line-height: 1.5;
+  letter-spacing: 0 !important;
+}
+
+html[dir="rtl"] .resume-item-sub,
+html[dir="rtl"] .resume-item-sub.mono {
+  font-family: var(--font-persian);
+  direction: rtl;
+  text-align: right;
+  letter-spacing: 0 !important;
+  line-height: 1.5;
+}
+
 html[dir="rtl"] .resume-bullets li {
+  font-family: var(--font-persian);
+  font-size: 9.5px;
+  line-height: 1.6;
+  letter-spacing: 0 !important;
   padding-left: 0;
   padding-right: 14px;
 }
@@ -566,10 +627,108 @@ html[dir="rtl"] .resume-bullets li {
 html[dir="rtl"] .resume-bullets li::before {
   left: auto;
   right: 0;
+  top: 7px;
+}
+
+html[dir="rtl"] .resume-tags {
+  font-family: var(--font-persian);
+  font-size: 8.5px;
+  line-height: 1.55;
+  letter-spacing: 0 !important;
+}
+
+html[dir="rtl"] .resume-tags strong {
+  font-family: var(--font-persian);
+  font-weight: 700;
+}
+
+html[dir="rtl"] .stack-block strong {
+  font-family: var(--font-persian);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0 !important;
+}
+
+html[dir="rtl"] .stack-block p {
+  font-family: var(--font-persian);
+  font-size: 8.5px;
+  line-height: 1.55;
+  letter-spacing: 0 !important;
+}
+
+html[dir="rtl"] .education-compact strong {
+  font-family: var(--font-persian);
+  font-weight: 700;
+  letter-spacing: 0 !important;
+}
+
+html[dir="rtl"] .education-meta {
+  font-family: var(--font-persian);
+  font-size: 9px;
+  line-height: 1.45;
+  letter-spacing: 0 !important;
+}
+
+html[dir="rtl"] .education-note {
+  font-family: var(--font-persian);
+  font-size: 8.5px;
+  line-height: 1.5;
+  letter-spacing: 0 !important;
+}
+
+html[dir="rtl"] .honor-title {
+  font-family: var(--font-persian);
+  font-weight: 700;
+  letter-spacing: 0 !important;
+}
+
+html[dir="rtl"] .cell-pill {
+  font-family: var(--font-persian);
+  letter-spacing: 0 !important;
+}
+
+/* Persian badges and score tags */
+html[dir="rtl"] .badge {
+  font-family: var(--font-persian);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0 !important;
+  direction: rtl;
+  unicode-bidi: isolate;
+  display: inline-block;
+}
+
+html[dir="rtl"] .resume-item .score {
+  font-family: var(--font-persian);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0 !important;
+  direction: rtl;
+  unicode-bidi: isolate;
+  display: inline-block;
+}
+
+/* Purely Latin badges, code elements, chips, and repo links stay LTR & mono */
+html[dir="rtl"] .cell-tool-chip,
+html[dir="rtl"] .resume-repo-link,
+html[dir="rtl"] code {
+  font-family: var(--font-mono);
+  direction: ltr;
+  unicode-bidi: isolate;
+  display: inline-block;
 }
 
 html[dir="rtl"] .toolbar {
   flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .toolbar a,
+html[dir="rtl"] .toolbar button {
+  font-family: var(--font-persian);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0 !important;
+  text-transform: none;
 }
 
 html[dir="rtl"] .toolbar-back .back-arrow {
@@ -577,11 +736,14 @@ html[dir="rtl"] .toolbar-back .back-arrow {
   display: inline-block;
 }
 
-/* Neutralize letter-spacing for Persian text in resume */
+/* Neutralize letter-spacing for all Persian text in resume */
 html[dir="rtl"] h1,
 html[dir="rtl"] h2,
 html[dir="rtl"] h3,
 html[dir="rtl"] p,
+html[dir="rtl"] a,
+html[dir="rtl"] span,
+html[dir="rtl"] strong,
 html[dir="rtl"] .summary,
 html[dir="rtl"] .resume-item-sub,
 html[dir="rtl"] .education-meta,
@@ -590,19 +752,4 @@ html[dir="rtl"] .stack-block p {
   letter-spacing: 0 !important;
 }
 
-html[dir="rtl"] .resume-item-sub.mono {
-  direction: rtl;
-  text-align: right;
-  letter-spacing: 0;
-}
-
-/* Purely Latin badges and code elements inside Persian resume stay readable LTR */
-html[dir="rtl"] .score,
-html[dir="rtl"] .badge,
-html[dir="rtl"] .cell-tool-chip,
-html[dir="rtl"] code {
-  direction: ltr;
-  unicode-bidi: isolate;
-  display: inline-block;
-}
 

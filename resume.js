@@ -153,15 +153,15 @@
             ${noteHtml}
           </div>
         `;
-      }).join('') + (d.honors && d.honors.length > 0 ? `
+      }).join('') + (d.honors && d.honors.length > 0 ? d.honors.map(h => `
         <div class="education-compact honors-box">
           <div class="education-title-row">
-            <strong class="honor-title">✦ ${d.honors[0].title}</strong>
-            <span class="score badge">${d.honors[0].year}</span>
+            <strong class="honor-title">✦ ${h.title}</strong>
+            <span class="score badge">${h.year}</span>
           </div>
-          <p class="education-note">${d.honors[0].context}</p>
+          <p class="education-note">${h.context}</p>
         </div>
-      ` : '');
+      `).join('') : '');
     }
   }
 

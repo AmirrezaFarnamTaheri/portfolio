@@ -2,8 +2,8 @@ window.PORTFOLIO_DATA = {
   person: {
     name: 'Amirreza “Farnam” Taheri',
     shortName: 'Farnam Taheri',
-    roles: ['MSc in Economics', 'Data Scientist', 'Machine Learning', 'Deep Learning'],
-    statement: 'Graduate student in Economics at Tehran Institute for Advanced Studies (TeIAS). Research in labor economics and search-and-matching models supervised by Prof. Alireza Sepahsalari. Rigorous empirical econometrics and machine learning in Python, R, and Stata, alongside passion projects in Rust, Go, and TypeScript.',
+    roles: ['MSc in Economics', 'Structural Modeling', 'Econometrics', 'Machine Learning & Deep Learning'],
+    statement: 'Graduate student in Economics at Tehran Institute for Advanced Studies (TeIAS). Research in labor economics, empirical econometrics, and structural search-and-matching models supervised by Prof. Alireza Sepahsalari. Focused on dynamic structural modeling, microeconometrics, machine learning, and deep learning in Python, Stata, and R, alongside software systems engineering in Rust, Go, and TypeScript.',
     advisorUrl: 'https://www.sepahsalari.com/',
     institute: 'Tehran Institute for Advanced Studies (TeIAS)',
     instituteUrl: 'https://teias.institute',
@@ -32,9 +32,10 @@ window.PORTFOLIO_DATA = {
     'PyTorch',
     'scikit-learn',
     'Dynare / MATLAB',
-    'Causal Inference',
+    'Structural Modeling',
+    'Econometrics',
     'Data Science / Data Engineering',
-    'Machine Learning / Deep Learning',
+    'Machine Learning & Deep Learning',
     'AI Agents / Agentic Coding',
     'Rust',
     'Go',
@@ -55,8 +56,7 @@ window.PORTFOLIO_DATA = {
     methodology: [
       'Continuous-time Bellman equations with endogenous asset accumulation and reservation wage policies.',
       'Numerical solution via Value Function Iteration (VFI) and continuous-state dynamic programming.',
-      'Empirical calibration and indirect inference using NLSY79 longitudinal microdata and O*NET occupational skill vectors.',
-      'Counterfactual policy evaluations of unemployment insurance liquidity extensions versus wage subsidies.'
+      'Data science & econometric analysis: Empirical microdata analysis and structural moment estimation with NLSY79 and O*NET; identified and reported official survey variable title errata (W1382000, W1391400) confirmed by CHRR archivist at The Ohio State University.'
     ],
     dataSources: ['NLSY79 (National Longitudinal Survey of Youth)', 'O*NET Occupational Requirements Database', 'CPS (Current Population Survey)'],
     tools: ['Python', 'Stata', 'R', 'NumPy / SciPy', 'Dynamic Programming', 'LaTeX'],
@@ -69,9 +69,14 @@ window.PORTFOLIO_DATA = {
   },
   honors: [
     {
-      title: "Rank 27 — Iranian National Master's Entrance Examination",
+      title: "Rank 27 — Master's Konkur Exam",
       year: '2023',
-      context: 'Nationwide quantitative entrance examination for graduate studies in Economics.'
+      context: 'Nationwide entrance exam for Masters in Economics'
+    },
+    {
+      title: 'TeIAS Merit-Based Scholarship',
+      year: '2023 & 2025',
+      context: 'Competitive full graduate merit scholarship awarded by Tehran Institute for Advanced Studies'
     }
   ],
   stackPillars: [],
@@ -340,7 +345,7 @@ window.PORTFOLIO_DATA = {
     {
       name: 'Liquidity, Mismatch, and Job Choice (Master’s Research)',
       description: 'Graduate labor economics research supervised by Prof. Alireza Sepahsalari. Uses NLSY79 and O*NET microdata to study worker-job mismatch, liquid asset distribution, job transitions, nonparametric smoothing, and structural search-with-savings models.',
-      stack: ['Python', 'Stata', 'R', 'NLSY79', 'O*NET', 'Causal Inference', 'Structural Modeling'],
+      stack: ['Python', 'Stata', 'R', 'NLSY79', 'O*NET', 'Dynamic Programming', 'Structural Modeling'],
       href: null
     },
     {
