@@ -1394,6 +1394,17 @@
       manifoldGroup.rotation.z = -Math.PI / 8;
       scene.add(manifoldGroup);
 
+      // Dynamic contour isoline uniforms & shader injection
+      const customShaderUniforms = {
+        uIsDark: { value: isDark ? 1.0 : 0.0 },
+        uTime: { value: 0 },
+        uLineSpacing: { value: 1.45 },
+        uIsolineColorDark: { value: new THREE.Color(0x38bdf8) },
+        uIsolineColorLight: { value: new THREE.Color(0x1d4ed8) },
+        uSaddleColorDark: { value: new THREE.Color(0xc084fc) },
+        uSaddleColorLight: { value: new THREE.Color(0x4338ca) }
+      };
+
       const skinMat = new THREE.MeshStandardMaterial({
         color: skinColor,
         roughness: 0.32,
@@ -1405,6 +1416,65 @@
         opacity: isDark ? 0.72 : 0.58,
         side: THREE.DoubleSide
       });
+
+      skinMat.onBeforeCompile = function (shader) {
+        shader.uniforms.uIsDark = customShaderUniforms.uIsDark;
+        shader.uniforms.uTime = customShaderUniforms.uTime;
+        shader.uniforms.uLineSpacing = customShaderUniforms.uLineSpacing;
+        shader.uniforms.uIsolineColorDark = customShaderUniforms.uIsolineColorDark;
+        shader.uniforms.uIsolineColorLight = customShaderUniforms.uIsolineColorLight;
+        shader.uniforms.uSaddleColorDark = customShaderUniforms.uSaddleColorDark;
+        shader.uniforms.uSaddleColorLight = customShaderUniforms.uSaddleColorLight;
+
+        shader.vertexShader = shader.vertexShader.replace(
+          '#include <common>',
+          `#include <common>
+           varying vec3 vManifoldPos;`
+        );
+        shader.vertexShader = shader.vertexShader.replace(
+          '#include <begin_vertex>',
+          `#include <begin_vertex>
+           vManifoldPos = position;`
+        );
+
+        shader.fragmentShader = shader.fragmentShader.replace(
+          '#include <common>',
+          `#include <common>
+           varying vec3 vManifoldPos;
+           uniform float uIsDark;
+           uniform float uTime;
+           uniform float uLineSpacing;
+           uniform vec3 uIsolineColorDark;
+           uniform vec3 uIsolineColorLight;
+           uniform vec3 uSaddleColorDark;
+           uniform vec3 uSaddleColorLight;`
+        );
+
+        shader.fragmentShader = shader.fragmentShader.replace(
+          '#include <dithering_fragment>',
+          `#include <dithering_fragment>
+           // 1. Dynamic Topographical Contour Isolines (anti-aliased with fwidth)
+           float elevation = vManifoldPos.z / uLineSpacing;
+           float f = abs(fract(elevation - 0.5) - 0.5) / max(fwidth(elevation), 0.0001);
+           float line = 1.0 - min(f, 1.0);
+           line = pow(line, 1.6);
+
+           float pulse = 0.88 + 0.12 * sin(elevation * 3.14159 - uTime * 1.6);
+           line *= pulse;
+
+           // 2. Curvature modulation: hyperbolic saddle detection
+           float saddleTerm = (vManifoldPos.x * vManifoldPos.x - vManifoldPos.y * vManifoldPos.y) * 0.0032;
+           float saddleDist = length(vManifoldPos.xy);
+           float saddleWeight = smoothstep(0.1, 1.4, abs(saddleTerm) * 3.8) * (1.0 - smoothstep(14.0, 32.0, saddleDist));
+
+           vec3 isolineColor = uIsDark > 0.5 ? uIsolineColorDark : uIsolineColorLight;
+           vec3 saddleTint = uIsDark > 0.5 ? uSaddleColorDark : uSaddleColorLight;
+
+           gl_FragColor.rgb = mix(gl_FragColor.rgb, saddleTint, saddleWeight * (uIsDark > 0.5 ? 0.28 : 0.16));
+           gl_FragColor.rgb = mix(gl_FragColor.rgb, isolineColor, line * (uIsDark > 0.5 ? 0.72 : 0.50));`
+        );
+      };
+
       const skinMesh = new THREE.Mesh(planeGeo, skinMat);
       manifoldGroup.add(skinMesh);
 
@@ -1412,10 +1482,206 @@
         color: wireColor,
         wireframe: true,
         transparent: true,
-        opacity: isDark ? 0.45 : 0.32
+        opacity: isDark ? 0.32 : 0.20
       });
       const wireMesh = new THREE.Mesh(planeGeo, wireMat);
       manifoldGroup.add(wireMesh);
+
+      // --- 2.1 Topographical Critical Point Landmarks (Global Min, Saddle Pass, Sub-Basin) ---
+      const criticalPointsGroup = new THREE.Group();
+      manifoldGroup.add(criticalPointsGroup);
+
+      function createTextBadgeSprite(text, isDarkTheme, accentColorHex) {
+        if (typeof document === 'undefined') return null;
+        const canvas = document.createElement('canvas');
+        canvas.width = 256;
+        canvas.height = 64;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return null;
+
+        ctx.clearRect(0, 0, 256, 64);
+        ctx.fillStyle = isDarkTheme ? 'rgba(7, 15, 30, 0.82)' : 'rgba(240, 246, 255, 0.88)';
+        ctx.strokeStyle = accentColorHex || (isDarkTheme ? 'rgba(56, 189, 248, 0.65)' : 'rgba(30, 86, 227, 0.65)');
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        if (ctx.roundRect) {
+          ctx.roundRect(8, 12, 240, 40, 8);
+        } else {
+          ctx.rect(8, 12, 240, 40);
+        }
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.font = '600 19px "Geist Mono", monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = accentColorHex || (isDarkTheme ? '#38bdf8' : '#1e56e3');
+        ctx.fillText(text, 128, 32);
+
+        const tex = new THREE.CanvasTexture(canvas);
+        tex.needsUpdate = true;
+        const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, opacity: isDarkTheme ? 0.92 : 0.85 });
+        const sprite = new THREE.Sprite(mat);
+        sprite.scale.set(4.8, 1.2, 1.0);
+        return { sprite, canvas, ctx, texture: tex };
+      }
+
+      const criticalPointsConfig = [
+        {
+          id: 'global-min',
+          label: 'min ℒ(θ)',
+          x: 0,
+          y: 0,
+          phase: 0,
+          colorDark: 0x34d399,
+          colorLight: 0x059669,
+          hexDark: '#34d399',
+          hexLight: '#059669'
+        },
+        {
+          id: 'saddle-pass',
+          label: 'saddle ∇²ℒ',
+          x: -14,
+          y: 14,
+          phase: 1.8,
+          colorDark: 0xc084fc,
+          colorLight: 0x6366f1,
+          hexDark: '#c084fc',
+          hexLight: '#6366f1'
+        },
+        {
+          id: 'local-min',
+          label: 'local min',
+          x: 16,
+          y: -14,
+          phase: 3.2,
+          colorDark: 0x38bdf8,
+          colorLight: 0x1e40af,
+          hexDark: '#38bdf8',
+          hexLight: '#1e40af'
+        }
+      ];
+
+      const activeBeacons = [];
+      criticalPointsConfig.forEach(cfg => {
+        const bGroup = new THREE.Group();
+        const activeColor = isDark ? cfg.colorDark : cfg.colorLight;
+
+        // Glowing 3D Diamond / Octahedron
+        const octGeo = new THREE.OctahedronGeometry(0.52, 0);
+        const octMat = new THREE.MeshStandardMaterial({
+          color: activeColor,
+          emissive: activeColor,
+          emissiveIntensity: 0.75,
+          roughness: 0.25,
+          metalness: 0.55
+        });
+        const octMesh = new THREE.Mesh(octGeo, octMat);
+        octMesh.position.z = 2.2;
+        bGroup.add(octMesh);
+
+        // Ground anchor pulse ring
+        const grGeo = new THREE.RingGeometry(0.65, 0.95, 32);
+        const grMat = new THREE.MeshBasicMaterial({
+          color: activeColor,
+          side: THREE.DoubleSide,
+          transparent: true,
+          opacity: 0.65,
+          blending: THREE.AdditiveBlending
+        });
+        const grMesh = new THREE.Mesh(grGeo, grMat);
+        grMesh.position.z = 0.05;
+        bGroup.add(grMesh);
+
+        // Vertical datum tether line
+        const tetherGeo = new THREE.BufferGeometry().setFromPoints([
+          new THREE.Vector3(0, 0, 0.05),
+          new THREE.Vector3(0, 0, 2.2)
+        ]);
+        const tetherMat = new THREE.LineBasicMaterial({
+          color: activeColor,
+          transparent: true,
+          opacity: 0.6
+        });
+        const tetherLine = new THREE.Line(tetherGeo, tetherMat);
+        bGroup.add(tetherLine);
+
+        // Technical Monospace Typography Sprite
+        const badgeObj = createTextBadgeSprite(cfg.label, isDark, isDark ? cfg.hexDark : cfg.hexLight);
+        if (badgeObj && badgeObj.sprite) {
+          badgeObj.sprite.position.set(0, 0, 2.85);
+          bGroup.add(badgeObj.sprite);
+        }
+
+        bGroup.position.set(cfg.x, cfg.y, getLossHeight(cfg.x, cfg.y, 0));
+        criticalPointsGroup.add(bGroup);
+
+        activeBeacons.push({
+          cfg: cfg,
+          group: bGroup,
+          markerMesh: octMesh,
+          groundRing: grMesh,
+          tetherLine: tetherLine,
+          badgeObj: badgeObj,
+          x: cfg.x,
+          y: cfg.y,
+          phase: cfg.phase
+        });
+      });
+
+      // --- 2.2 Interactive Tangent Gradient Cursor Indicator ---
+      const tangentCursorGroup = new THREE.Group();
+      manifoldGroup.add(tangentCursorGroup);
+      tangentCursorGroup.visible = false;
+
+      const tRingGeo = new THREE.RingGeometry(0.9, 1.15, 32);
+      const tRingMat = new THREE.MeshBasicMaterial({
+        color: isDark ? 0x38bdf8 : 0x1e56e3,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0,
+        blending: THREE.AdditiveBlending
+      });
+      const tRingMesh = new THREE.Mesh(tRingGeo, tRingMat);
+      tangentCursorGroup.add(tRingMesh);
+
+      const arrowGroup = new THREE.Group();
+      const arrowStemGeo = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(0, 0, 0.05),
+        new THREE.Vector3(0, 1.8, 0.05)
+      ]);
+      const arrowStemMat = new THREE.LineBasicMaterial({
+        color: isDark ? 0x7dd3fc : 0x2563eb,
+        transparent: true,
+        opacity: 0,
+        linewidth: 2
+      });
+      const arrowStem = new THREE.Line(arrowStemGeo, arrowStemMat);
+      arrowGroup.add(arrowStem);
+
+      const arrowConeGeo = new THREE.ConeGeometry(0.28, 0.65, 16);
+      const arrowConeMat = new THREE.MeshBasicMaterial({
+        color: isDark ? 0x7dd3fc : 0x2563eb,
+        transparent: true,
+        opacity: 0
+      });
+      const arrowCone = new THREE.Mesh(arrowConeGeo, arrowConeMat);
+      arrowCone.position.set(0, 1.8, 0.05);
+      arrowCone.rotation.x = Math.PI / 2;
+      arrowGroup.add(arrowCone);
+
+      tangentCursorGroup.add(arrowGroup);
+
+      const tangentCursorState = {
+        active: false,
+        targetX: 0,
+        targetY: 0,
+        currentX: 0,
+        currentY: 0,
+        opacity: 0,
+        gradX: 0,
+        gradY: 0
+      };
 
       // --- 3. Interactive Probe Spawner & Trace System ---
       const probesGroup = new THREE.Group();
@@ -1787,12 +2053,45 @@
         emissiveColor = dark ? 0x091e3a : 0x1d4ed8;
 
         wireMat.color.setHex(wireColor);
-        wireMat.opacity = dark ? 0.45 : 0.32;
+        wireMat.opacity = dark ? 0.32 : 0.20;
         skinMat.color.setHex(skinColor);
         skinMat.emissive.setHex(emissiveColor);
         skinMat.emissiveIntensity = dark ? 0.35 : 0.22;
         skinMat.opacity = dark ? 0.72 : 0.58;
         rimLight.color.setHex(dark ? 0x38bdf8 : 0x60a5fa);
+
+        customShaderUniforms.uIsDark.value = dark ? 1.0 : 0.0;
+
+        activeBeacons.forEach(b => {
+          const c = dark ? b.cfg.colorDark : b.cfg.colorLight;
+          b.markerMesh.material.color.setHex(c);
+          b.markerMesh.material.emissive.setHex(c);
+          b.groundRing.material.color.setHex(c);
+          b.tetherLine.material.color.setHex(c);
+          if (b.badgeObj && b.badgeObj.ctx) {
+            const ctx = b.badgeObj.ctx;
+            ctx.clearRect(0, 0, 256, 64);
+            ctx.fillStyle = dark ? 'rgba(7, 15, 30, 0.82)' : 'rgba(240, 246, 255, 0.88)';
+            ctx.strokeStyle = dark ? 'rgba(56, 189, 248, 0.65)' : 'rgba(30, 86, 227, 0.65)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            if (ctx.roundRect) ctx.roundRect(8, 12, 240, 40, 8);
+            else ctx.rect(8, 12, 240, 40);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.font = '600 19px "Geist Mono", monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = dark ? b.cfg.hexDark : b.cfg.hexLight;
+            ctx.fillText(b.cfg.label, 128, 32);
+            b.badgeObj.texture.needsUpdate = true;
+          }
+        });
+
+        if (tRingMat) tRingMat.color.setHex(dark ? 0x38bdf8 : 0x1e56e3);
+        if (arrowStemMat) arrowStemMat.color.setHex(dark ? 0x7dd3fc : 0x2563eb);
+        if (arrowConeMat) arrowConeMat.color.setHex(dark ? 0x7dd3fc : 0x2563eb);
 
         activeProbes.forEach(p => {
           p.mesh.material.color.setHex(dark ? 0x38bdf8 : 0x1e56e3);
@@ -1843,6 +2142,7 @@
 
       function handlePointerDown(clientX, clientY) {
         isDragging = true;
+        tangentCursorState.active = false;
         if (canvasWrap) canvasWrap.style.cursor = 'grabbing';
         prevMouseX = clientX;
         prevMouseY = clientY;
@@ -1854,6 +2154,7 @@
         const rect = canvasEl.getBoundingClientRect();
         if (clientX < rect.left || clientX > rect.right || clientY < rect.top || clientY > rect.bottom) {
           if (canvasWrap) canvasWrap.style.cursor = 'default';
+          tangentCursorState.active = false;
           return;
         }
 
@@ -1863,6 +2164,7 @@
         mouseY = ny;
 
         if (isDragging) {
+          tangentCursorState.active = false;
           if (canvasWrap) canvasWrap.style.cursor = 'grabbing';
           const deltaX = clientX - prevMouseX;
           const deltaY = clientY - prevMouseY;
@@ -1882,8 +2184,12 @@
             rippleX = localP.x;
             rippleY = localP.y;
             rippleIntensity = 1.0;
+            tangentCursorState.active = true;
+            tangentCursorState.targetX = localP.x;
+            tangentCursorState.targetY = localP.y;
           } else {
             if (canvasWrap) canvasWrap.style.cursor = 'default';
+            tangentCursorState.active = false;
           }
         }
       }
@@ -2018,6 +2324,10 @@
         }, 150);
       });
 
+      // Smooth Camera Spring Inertia Variables
+      let camTargetX = 24, camTargetY = 28, camTargetZ = 34;
+      let camCurrentX = 24, camCurrentY = 28, camCurrentZ = 34;
+
       // Animation Loop
       const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -2025,6 +2335,7 @@
         requestAnimationFrame(animate);
 
         const elapsedTime = clock.getElapsedTime();
+        customShaderUniforms.uTime.value = elapsedTime;
 
         if (!prefersReduced) {
           // 1. Update Blackhole Lifecycle & Gradual Restoration
@@ -2328,14 +2639,79 @@
             p.traceMesh.geometry.setDrawRange(0, count < 2 ? 0 : count);
           }
 
+          // 4. Update Topographical Critical Point Landmarks (Dynamic Surface Locking)
+          activeBeacons.forEach(b => {
+            const bz = getLossHeight(b.x, b.y, elapsedTime);
+            b.group.position.set(b.x, b.y, bz);
+            b.markerMesh.rotation.y += 0.02;
+            b.markerMesh.rotation.x = Math.sin(elapsedTime * 2.0 + b.phase) * 0.15;
+            const pulseRing = 1.0 + Math.sin(elapsedTime * 2.5 + b.phase) * 0.18;
+            b.groundRing.scale.set(pulseRing, pulseRing, pulseRing);
+
+            if (activeBlackhole && activeBlackhole.currentStrength > 0.05) {
+              const distToHole = Math.hypot(activeBlackhole.x - b.x, activeBlackhole.y - b.y);
+              b.group.visible = distToHole >= 8.5;
+            } else {
+              b.group.visible = true;
+            }
+          });
+
+          // 5. Update Interactive Tangent Gradient Cursor Indicator
+          if (tangentCursorState.active && (!activeBlackhole || !activeBlackhole.isWormhole)) {
+            tangentCursorState.opacity += (0.85 - tangentCursorState.opacity) * 0.14;
+          } else {
+            tangentCursorState.opacity += (0 - tangentCursorState.opacity) * 0.14;
+          }
+
+          if (tangentCursorState.opacity > 0.02) {
+            tangentCursorGroup.visible = true;
+            tangentCursorState.currentX += (tangentCursorState.targetX - tangentCursorState.currentX) * 0.22;
+            tangentCursorState.currentY += (tangentCursorState.targetY - tangentCursorState.currentY) * 0.22;
+
+            const tx = tangentCursorState.currentX;
+            const ty = tangentCursorState.currentY;
+            const tz = getLossHeight(tx, ty, elapsedTime);
+
+            const eps = 0.25;
+            const gx = (getLossHeight(tx + eps, ty, elapsedTime) - getLossHeight(tx - eps, ty, elapsedTime)) / (2 * eps);
+            const gy = (getLossHeight(tx, ty + eps, elapsedTime) - getLossHeight(tx - eps, ty, elapsedTime)) / (2 * eps);
+
+            tangentCursorGroup.position.set(tx, ty, tz + 0.12);
+
+            const n = new THREE.Vector3(-gx, -gy, 1.0).normalize();
+            tangentCursorGroup.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), n);
+
+            const gradNorm = Math.hypot(gx, gy);
+            if (gradNorm > 0.04) {
+              arrowGroup.visible = true;
+              const theta = Math.atan2(-gy, -gx);
+              arrowGroup.rotation.z = theta - Math.PI / 2;
+              const arrowLen = Math.min(2.4, Math.max(0.7, gradNorm * 1.6));
+              arrowGroup.scale.set(1, arrowLen / 1.8, 1);
+            } else {
+              arrowGroup.visible = false;
+            }
+
+            tRingMat.opacity = tangentCursorState.opacity;
+            arrowStemMat.opacity = tangentCursorState.opacity * 0.95;
+            arrowConeMat.opacity = tangentCursorState.opacity;
+          } else {
+            tangentCursorGroup.visible = false;
+          }
+
           // Gentle rotation & ripple decay
           manifoldGroup.rotation.z += 0.0008;
           rippleIntensity *= 0.96;
         }
 
-        // Camera gentle drift
-        camera.position.x += (mouseX * 4 - camera.position.x + 24) * 0.02;
-        camera.position.y += (-mouseY * 4 - camera.position.y + 28) * 0.02;
+        // Camera smooth spring drift
+        camTargetX = 24 + mouseX * 5.0;
+        camTargetY = 28 - mouseY * 4.5;
+        camTargetZ = 34 + Math.sin(elapsedTime * 0.15) * 1.2;
+        camCurrentX += (camTargetX - camCurrentX) * 0.04;
+        camCurrentY += (camTargetY - camCurrentY) * 0.04;
+        camCurrentZ += (camTargetZ - camCurrentZ) * 0.04;
+        camera.position.set(camCurrentX, camCurrentY, camCurrentZ);
         camera.lookAt(0, 0, 0);
 
         renderer.render(scene, camera);
