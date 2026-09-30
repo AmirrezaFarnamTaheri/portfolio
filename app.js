@@ -1120,8 +1120,8 @@
     { title: 'WinCare: Diagnostics & Recovery Tool', titleFa: 'وین‌کر (WinCare): پلتفرم عیب‌یابی و خودترمیمی ویندوز', cat: 'Tooling', catFa: 'ابزارها', icon: '⌗', action: () => openProjectModal('wincare') },
     { title: 'Toggle Dark / Light Theme', titleFa: 'تغییر پوسته تیره / روشن', cat: 'Action', catFa: 'عملیات', icon: '◐', action: () => themeToggle?.click() },
     { title: 'Visit TeIAS (Tehran Institute for Advanced Studies)', titleFa: 'مشاهده تارنمای موسسه تحقیقات پیشرفته تهران (TeIAS)', cat: 'Academic', catFa: 'آکادمیک', icon: '↗', action: () => window.open('https://teias.institute', '_blank') },
-    { title: 'Spawn Gravitational Singularity (Black Hole)', titleFa: 'ایجاد تکینگی گرانشی (سیاه‌چاله در خمینه)', cat: 'Simulation', catFa: 'شبیه‌سازی', icon: '◉', action: () => { if (typeof window.__spawnBlackholeAt === 'function') { const s = window.__spawnBlackholeAt(0, 0); if (!s) showToast((window.I18N && window.I18N.t('toast_singularity_active')) || 'A singularity is already active on the manifold', 2400); } } },
-    { title: 'Trigger Einstein-Rosen Wormhole Portal', titleFa: 'فعال‌سازی درگاه کرم‌چاله اینشتین-روزن', cat: 'Simulation', catFa: 'شبیه‌سازی', icon: '◎', action: () => { if (typeof window.__triggerWormhole === 'function') { const w = window.__triggerWormhole(); if (!w) showToast((window.I18N && window.I18N.t('toast_singularity_active')) || 'A singularity or wormhole is already active on the manifold', 2400); } } },
+    { title: 'Spawn Gravitational Singularity (Black Hole)', titleFa: 'ایجاد تکینگی گرانشی (سیاه‌چاله در خمینه)', cat: 'Simulation', catFa: 'شبیه‌سازی', icon: '◉', action: () => { if (typeof window.__spawnBlackholeAt === 'function') window.__spawnBlackholeAt(0, 0); } },
+    { title: 'Trigger Einstein-Rosen Wormhole Portal', titleFa: 'فعال‌سازی درگاه کرم‌چاله اینشتین-روزن', cat: 'Simulation', catFa: 'شبیه‌سازی', icon: '◎', action: () => { if (typeof window.__triggerWormhole === 'function') window.__triggerWormhole(); } },
     { title: 'Spawn Descent Probe on Surface', titleFa: 'پرتاب کاوشگر گرادیان روی خمینه', cat: 'Simulation', catFa: 'شبیه‌سازی', icon: '✦', action: () => { if (typeof window.__spawnProbeAt === 'function') window.__spawnProbeAt((Math.random() - 0.5) * 20, (Math.random() - 0.5) * 20); } },
     { title: 'Trigger Loss Surface Ripple', titleFa: 'ایجاد موج و نوسان در خمینه', cat: 'Simulation', catFa: 'شبیه‌سازی', icon: '◈', action: () => { if (typeof window.__triggerSurfaceRipple === 'function') window.__triggerSurfaceRipple(); } },
     { title: 'Copy Primary Email (TaheriFarnam@Gmail.com)', titleFa: 'کپی آدرس ایمیل (TaheriFarnam@Gmail.com)', cat: 'Contact', catFa: 'ارتباط', icon: '⎘', action: () => copyText('TaheriFarnam@Gmail.com') },
@@ -1364,7 +1364,8 @@
           h -= rubberSheetState.depth * Math.exp(-cdistSq * 0.048);
         }
 
-        // Concurrent Dynamic Wave Ripples
+        // Concurrent Dynamic Wave Ripples with Overlap Protection
+        let dynamicRipples = 0;
         for (let ri = 0; ri < activeRipples.length; ri++) {
           const rp = activeRipples[ri];
           const dt = t - rp.startTime;
@@ -1373,7 +1374,7 @@
             const rdy = y - rp.y;
             const rdist = Math.sqrt(rdx * rdx + rdy * rdy);
             const decay = Math.exp(-dt * 1.6) * rp.intensity;
-            h += Math.sin(rdist * 0.85 - dt * 6.5) * Math.exp(-rdist * 0.14) * decay;
+            dynamicRipples += Math.sin(rdist * 0.85 - dt * 6.5) * Math.exp(-rdist * 0.14) * decay;
           }
         }
 
@@ -1382,8 +1383,11 @@
           const dy = y - rippleY;
           const dist = Math.sqrt(dx * dx + dy * dy);
           const rip = Math.sin(dist * 0.45 - t * 4.0) * Math.exp(-dist * 0.12) * rippleIntensity * 3.5;
-          h += rip;
+          dynamicRipples += rip;
         }
+
+        // Bounded clamp prevents overlapping shockwave spikes from tearing or glitching the manifold
+        h += Math.max(-2.6, Math.min(2.6, dynamicRipples));
 
         if (activeBlackhole && activeBlackhole.currentStrength > 0.0001) {
           const bx = x - activeBlackhole.x;
@@ -1539,96 +1543,6 @@
       });
       const wireMesh = new THREE.Mesh(planeGeo, wireMat);
       manifoldGroup.add(wireMesh);
-
-      // --- 2.1 Topographical Critical Point Landmarks (Global Min, Saddle Pass, Sub-Basin) ---
-      const criticalPointsGroup = new THREE.Group();
-      manifoldGroup.add(criticalPointsGroup);
-
-      const criticalPointsConfig = [
-        {
-          id: 'global-min',
-          x: 0,
-          y: 0,
-          phase: 0,
-          colorDark: 0x34d399,
-          colorLight: 0x059669
-        },
-        {
-          id: 'saddle-pass',
-          x: -14,
-          y: 14,
-          phase: 1.8,
-          colorDark: 0xc084fc,
-          colorLight: 0x6366f1
-        },
-        {
-          id: 'local-min',
-          x: 16,
-          y: -14,
-          phase: 3.2,
-          colorDark: 0x38bdf8,
-          colorLight: 0x1e40af
-        }
-      ];
-
-      const activeBeacons = [];
-      criticalPointsConfig.forEach(cfg => {
-        const bGroup = new THREE.Group();
-        const activeColor = isDark ? cfg.colorDark : cfg.colorLight;
-
-        // Glowing 3D Diamond / Octahedron
-        const octGeo = new THREE.OctahedronGeometry(0.52, 0);
-        const octMat = new THREE.MeshStandardMaterial({
-          color: activeColor,
-          emissive: activeColor,
-          emissiveIntensity: 0.75,
-          roughness: 0.25,
-          metalness: 0.55
-        });
-        const octMesh = new THREE.Mesh(octGeo, octMat);
-        octMesh.position.z = 2.2;
-        bGroup.add(octMesh);
-
-        // Ground anchor pulse ring
-        const grGeo = new THREE.RingGeometry(0.65, 0.95, 32);
-        const grMat = new THREE.MeshBasicMaterial({
-          color: activeColor,
-          side: THREE.DoubleSide,
-          transparent: true,
-          opacity: 0.65,
-          blending: THREE.AdditiveBlending
-        });
-        const grMesh = new THREE.Mesh(grGeo, grMat);
-        grMesh.position.z = 0.05;
-        bGroup.add(grMesh);
-
-        // Vertical datum tether line
-        const tetherGeo = new THREE.BufferGeometry().setFromPoints([
-          new THREE.Vector3(0, 0, 0.05),
-          new THREE.Vector3(0, 0, 2.2)
-        ]);
-        const tetherMat = new THREE.LineBasicMaterial({
-          color: activeColor,
-          transparent: true,
-          opacity: 0.6
-        });
-        const tetherLine = new THREE.Line(tetherGeo, tetherMat);
-        bGroup.add(tetherLine);
-
-        bGroup.position.set(cfg.x, cfg.y, getLossHeight(cfg.x, cfg.y, 0));
-        criticalPointsGroup.add(bGroup);
-
-        activeBeacons.push({
-          cfg: cfg,
-          group: bGroup,
-          markerMesh: octMesh,
-          groundRing: grMesh,
-          tetherLine: tetherLine,
-          x: cfg.x,
-          y: cfg.y,
-          phase: cfg.phase
-        });
-      });
 
       // --- 2.2 Interactive Tangent Gradient Cursor Indicator ---
       const tangentCursorGroup = new THREE.Group();
@@ -2081,10 +1995,6 @@
         rippleIntensity = 3.5;
         rippleX = spawnX;
         rippleY = spawnY;
-
-        if (typeof console !== 'undefined' && console.info) {
-          console.info('%c[Singularity]%c Gravitational singularity active on loss manifold. Feed 8 probes into the event horizon to open an Einstein-Rosen bridge.', 'color: #38bdf8; font-weight: bold;', 'color: inherit;');
-        }
       }
 
       function triggerWormholeTransition(currentTime) {
@@ -2092,6 +2002,7 @@
         activeBlackhole.isWormhole = true;
         activeBlackhole.duration = 18.0; // Wormhole duration: 18 seconds
         activeBlackhole.startTime = typeof currentTime === 'number' ? currentTime : clock.getElapsedTime();
+        activeBlackhole.wormholeTransitionPhase = 0.0;
         rippleIntensity = 4.8; // Relativistic supernova shockwave
 
         // Morph core sphere into a translucent, shimmering portal mouth
@@ -2111,7 +2022,7 @@
         // Activate 3D Hyperbolic Throat Conduit Tube
         if (activeBlackhole.throatMesh) {
           activeBlackhole.throatMesh.visible = true;
-          activeBlackhole.throatMesh.material.opacity = isDark ? 0.85 : 0.65;
+          activeBlackhole.throatMesh.material.opacity = 0.05;
           activeBlackhole.throatMesh.material.color.setHex(isDark ? 0x38bdf8 : 0x1e56e3);
         }
 
@@ -2124,12 +2035,12 @@
         if (activeBlackhole.jetMesh1) {
           activeBlackhole.jetMesh1.visible = true;
           activeBlackhole.jetMesh1.material.color.setHex(isDark ? 0x38bdf8 : 0x0284c7);
-          activeBlackhole.jetMesh1.material.opacity = 0.75;
+          activeBlackhole.jetMesh1.material.opacity = 0.05;
         }
         if (activeBlackhole.jetMesh2) {
           activeBlackhole.jetMesh2.visible = true;
           activeBlackhole.jetMesh2.material.color.setHex(isDark ? 0xc084fc : 0x9333ea);
-          activeBlackhole.jetMesh2.material.opacity = 0.75;
+          activeBlackhole.jetMesh2.material.opacity = 0.05;
         }
 
         if (activeBlackhole.accretionNodes) {
@@ -2137,10 +2048,6 @@
             node.ignited = true;
             node.flare = 2.2;
           });
-        }
-
-        if (typeof console !== 'undefined' && console.info) {
-          console.info('%c[Wormhole]%c Einstein-Rosen bridge opened. Core inverted into throat bridge; probes will teleport across the manifold.', 'color: #c084fc; font-weight: bold;', 'color: inherit;');
         }
       }
 
@@ -2191,14 +2098,6 @@
         rimLight.color.setHex(dark ? 0x38bdf8 : 0x60a5fa);
 
         customShaderUniforms.uIsDark.value = dark ? 1.0 : 0.0;
-
-        activeBeacons.forEach(b => {
-          const c = dark ? b.cfg.colorDark : b.cfg.colorLight;
-          b.markerMesh.material.color.setHex(c);
-          b.markerMesh.material.emissive.setHex(c);
-          b.groundRing.material.color.setHex(c);
-          b.tetherLine.material.color.setHex(c);
-        });
 
         if (tRingMat) tRingMat.color.setHex(dark ? 0x38bdf8 : 0x1e56e3);
         if (arrowStemMat) arrowStemMat.color.setHex(dark ? 0x7dd3fc : 0x2563eb);
@@ -2261,6 +2160,7 @@
       let mouseX = 0, mouseY = 0;
       let isDragging = false;
       let prevMouseX = 0, prevMouseY = 0;
+      let orbitVelZ = 0, orbitVelX = 0;
       let pointerDownPos = { x: 0, y: 0, time: 0, active: false };
       let clickStreakCount = 0;
       let lastClickTimestamp = 0;
@@ -2385,10 +2285,14 @@
             const tension = Math.min(1.0, pullDist / 12.0);
             slingshotMat.color.setHex(isDark ? (tension > 0.6 ? 0xf59e0b : 0x38bdf8) : (tension > 0.6 ? 0xd97706 : 0x1e56e3));
           } else if (!slingshotState.active) {
-            // Camera Orbit
+            // Camera Orbit with fluid momentum tracking
             if (canvasWrap) canvasWrap.style.cursor = 'grabbing';
-            manifoldGroup.rotation.z += deltaX * 0.005;
-            manifoldGroup.rotation.x += deltaY * 0.003;
+            const stepZ = deltaX * 0.0045;
+            const stepX = deltaY * 0.0028;
+            manifoldGroup.rotation.z += stepZ;
+            manifoldGroup.rotation.x += stepX;
+            orbitVelZ = stepZ;
+            orbitVelX = stepX;
           }
         } else {
           // Accurate mathematical raycast sync with 3D loss surface
@@ -2402,11 +2306,17 @@
             rippleX = localP.x;
             rippleY = localP.y;
             rippleIntensity = 1.0;
-            tangentCursorState.active = true;
+
+            // Decouple cursor rubber-sheet when hovering near active singularity
+            const distToHole = activeBlackhole ? Math.hypot(localP.x - activeBlackhole.x, localP.y - activeBlackhole.y) : 999;
+            const holeDamp = activeBlackhole ? Math.min(1.0, Math.max(0.0, (distToHole - 2.0) / 3.0)) : 1.0;
+
+            tangentCursorState.active = distToHole >= 2.5;
             tangentCursorState.targetX = localP.x;
             tangentCursorState.targetY = localP.y;
+
             rubberSheetState.active = true;
-            rubberSheetState.targetDepth = 1.35;
+            rubberSheetState.targetDepth = 1.35 * holeDamp;
             rubberSheetState.x = localP.x;
             rubberSheetState.y = localP.y;
           } else {
@@ -2634,21 +2544,42 @@
                   node.mat.dispose();
                 });
               }
+              // Edge case: if blackhole expires while any probes were in absorption, cleanly restore their scale
+              activeProbes.forEach(p => {
+                if (p.absorbing) {
+                  p.absorbing = false;
+                  p.mesh.scale.set(1.0, 1.0, 1.0);
+                }
+              });
               activeBlackhole = null;
             } else {
               const progress = age / activeBlackhole.duration;
-              let s = 0;
-              if (progress < 0.08) {
-                // Rapid gravitational collapse & formation in first 8% (~1.9s)
-                s = Math.sin((progress / 0.08) * (Math.PI / 2));
+              let targetS = 0;
+              if (activeBlackhole.isWormhole) {
+                // Smooth Einstein-Rosen Wormhole lifecycle
+                // Transitions seamlessly from full scale with a relativistic dilation burst, remaining open before gentle closing
+                if (progress < 0.08) {
+                  targetS = 1.0 + Math.sin((progress / 0.08) * Math.PI) * 0.22;
+                } else if (progress > 0.82) {
+                  const decayP = (progress - 0.82) / 0.18;
+                  targetS = 0.5 * (1 + Math.cos(Math.PI * decayP));
+                } else {
+                  targetS = 1.02 + Math.sin(elapsedTime * 3.5) * 0.03;
+                }
               } else {
-                // Smooth cosine relaxation back to 0 over remaining time until surface goes back to original state
-                const decayP = (progress - 0.08) / 0.92;
-                s = 0.5 * (1 + Math.cos(Math.PI * decayP));
+                if (progress < 0.08) {
+                  // Rapid gravitational collapse & formation in first 8% (~1.9s)
+                  targetS = Math.sin((progress / 0.08) * (Math.PI / 2));
+                } else {
+                  // Smooth cosine relaxation back to 0 over remaining time until surface goes back to original state
+                  const decayP = (progress - 0.08) / 0.92;
+                  targetS = 0.5 * (1 + Math.cos(Math.PI * decayP));
+                }
               }
-              activeBlackhole.currentStrength = s;
+              // Smooth exponential lerp eliminates any instantaneous scale jumps from feeding rejuvenation or phase changes
+              activeBlackhole.currentStrength += (targetS - activeBlackhole.currentStrength) * 0.12;
 
-              const scale = Math.max(0.001, s);
+              const scale = Math.max(0.001, activeBlackhole.currentStrength);
               activeBlackhole.group.scale.set(scale, scale, scale);
 
               const centerZ = getLossHeight(activeBlackhole.x, activeBlackhole.y, elapsedTime) + 0.45;
@@ -2663,24 +2594,33 @@
 
               // Relativistic 3D throat conduit, gate rings & polar jet dynamic oscillation during wormhole phase
               if (activeBlackhole.isWormhole) {
+                if (activeBlackhole.wormholeTransitionPhase !== undefined && activeBlackhole.wormholeTransitionPhase < 1.0) {
+                  activeBlackhole.wormholeTransitionPhase += 0.035;
+                }
+                const transP = Math.min(1.0, activeBlackhole.wormholeTransitionPhase !== undefined ? activeBlackhole.wormholeTransitionPhase : 1.0);
+
                 if (activeBlackhole.throatMesh) {
                   activeBlackhole.throatMesh.rotation.z += 0.04;
-                  const throb = 1.0 + Math.sin(elapsedTime * 4.2) * 0.08;
+                  const throb = (1.0 + Math.sin(elapsedTime * 4.2) * 0.08) * transP;
                   activeBlackhole.throatMesh.scale.set(throb, 1.0, throb);
+                  activeBlackhole.throatMesh.material.opacity = (isDark ? 0.85 : 0.65) * transP;
                 }
                 if (activeBlackhole.throatRingMeshes) {
                   for (let ri = 0; ri < activeBlackhole.throatRingMeshes.length; ri++) {
                     const trm = activeBlackhole.throatRingMeshes[ri];
                     trm.rotation.z += (ri % 2 === 0 ? 0.06 : -0.06);
-                    const pz = 0.88 + Math.sin(elapsedTime * 3.8 + ri * 1.1) * 0.2;
+                    const pz = (0.88 + Math.sin(elapsedTime * 3.8 + ri * 1.1) * 0.2) * transP;
                     trm.scale.set(pz, pz, pz);
+                    trm.material.opacity = (isDark ? 0.8 : 0.6) * transP;
                   }
                 }
                 if (activeBlackhole.jetMesh1 && activeBlackhole.jetMesh2) {
                   activeBlackhole.jetMesh1.rotation.z -= 0.12;
                   activeBlackhole.jetMesh2.rotation.z += 0.12;
-                  activeBlackhole.jetMesh1.position.z = 2.2 + Math.sin(elapsedTime * 6.0) * 0.35;
-                  activeBlackhole.jetMesh2.position.z = -2.2 - Math.sin(elapsedTime * 6.0) * 0.35;
+                  activeBlackhole.jetMesh1.position.z = (2.2 + Math.sin(elapsedTime * 6.0) * 0.35) * transP;
+                  activeBlackhole.jetMesh2.position.z = (-2.2 - Math.sin(elapsedTime * 6.0) * 0.35) * transP;
+                  activeBlackhole.jetMesh1.material.opacity = 0.75 * transP;
+                  activeBlackhole.jetMesh2.material.opacity = 0.75 * transP;
                 }
               }
 
@@ -2803,6 +2743,10 @@
                   triggerTransitArc(activeBlackhole.x, activeBlackhole.y, p.x, p.y, exitZ);
                   addManifoldRipple(p.x, p.y, 3.2);
 
+                  // Relativistic ejection emergence flash
+                  p.teleportFlash = 1.0;
+                  p.mesh.scale.set(0.2, 0.2, 0.2);
+
                   // Wormhole exit flare shockwave
                   rippleIntensity = 2.6;
                   rippleX = p.x;
@@ -2818,37 +2762,56 @@
                 }
               } else {
                 // --- BLACK HOLE ACCRETION & REJUVENATING FEEDING PROTOCOL ---
-                if (distToB <= captureRadius) {
-                  // Cleanly swallowed into the event horizon
-                  p.swallowed = true;
+                if (distToB <= captureRadius || p.absorbing) {
+                  p.absorbing = true;
+                  p.absorbTimer = (p.absorbTimer || 0) + 0.085;
 
-                  // Rejuvenate black hole: add +1.5s lifespan (making it younger by winding back elapsed time)
-                  activeBlackhole.absorbedCount = (activeBlackhole.absorbedCount || 0) + 1;
-                  activeBlackhole.startTime += 1.5;
-                  if (activeBlackhole.startTime > elapsedTime - 0.08 * activeBlackhole.duration) {
-                    activeBlackhole.startTime = elapsedTime - 0.08 * activeBlackhole.duration;
+                  // Smooth physical plunge toward the singularity core
+                  p.x += (activeBlackhole.x - p.x) * 0.24;
+                  p.y += (activeBlackhole.y - p.y) * 0.24;
+                  p.vx *= 0.65;
+                  p.vy *= 0.65;
+
+                  // Relativistic Spaghettification & Contraction
+                  const pScale = Math.max(0.001, 1.0 - p.absorbTimer);
+                  p.mesh.scale.set(pScale * 0.7, pScale * 1.4, pScale * 0.7);
+
+                  const plungeZ = getLossHeight(p.x, p.y, elapsedTime) - p.absorbTimer * 2.2;
+                  p.mesh.position.set(p.x, p.y, plungeZ);
+
+                  // Singularity Impact Moment: fully consumed at core
+                  if (p.absorbTimer >= 1.0 || distToB < 0.22) {
+                    p.swallowed = true;
+
+                    // Rejuvenate black hole: add +1.5s lifespan (making it younger by winding back elapsed time)
+                    activeBlackhole.absorbedCount = (activeBlackhole.absorbedCount || 0) + 1;
+                    activeBlackhole.startTime += 1.5;
+                    if (activeBlackhole.startTime > elapsedTime - 0.08 * activeBlackhole.duration) {
+                      activeBlackhole.startTime = elapsedTime - 0.08 * activeBlackhole.duration;
+                    }
+
+                    // Ignite accretion node
+                    const anIdx = activeBlackhole.absorbedCount - 1;
+                    if (activeBlackhole.accretionNodes && activeBlackhole.accretionNodes[anIdx]) {
+                      activeBlackhole.accretionNodes[anIdx].ignited = true;
+                      activeBlackhole.accretionNodes[anIdx].flare = 2.4;
+                    }
+                    addManifoldRipple(activeBlackhole.x, activeBlackhole.y, 2.8);
+
+                    // Accretion feeding shockwave ripple
+                    rippleIntensity = 2.8;
+                    rippleX = activeBlackhole.x;
+                    rippleY = activeBlackhole.y;
+
+                    // Check if 8 balls threshold reached -> WORMHOLE PHASE TRANSITION
+                    if (activeBlackhole.absorbedCount >= 8) {
+                      activeBlackhole.isWormhole = true;
+                      activeBlackhole.duration = 18.0; // Wormhole duration: 18 seconds
+                      activeBlackhole.startTime = elapsedTime;
+                      triggerWormholeTransition(elapsedTime);
+                    }
                   }
-
-                  // Ignite accretion node
-                  const anIdx = activeBlackhole.absorbedCount - 1;
-                  if (activeBlackhole.accretionNodes && activeBlackhole.accretionNodes[anIdx]) {
-                    activeBlackhole.accretionNodes[anIdx].ignited = true;
-                    activeBlackhole.accretionNodes[anIdx].flare = 2.4;
-                  }
-                  addManifoldRipple(activeBlackhole.x, activeBlackhole.y, 2.8);
-
-                  // Accretion feeding shockwave ripple
-                  rippleIntensity = 2.8;
-                  rippleX = activeBlackhole.x;
-                  rippleY = activeBlackhole.y;
-
-                  // Check if 8 balls threshold reached -> WORMHOLE PHASE TRANSITION
-                  if (activeBlackhole.absorbedCount >= 8) {
-                    activeBlackhole.isWormhole = true;
-                    activeBlackhole.duration = 18.0; // Wormhole duration: 18 seconds
-                    activeBlackhole.startTime = elapsedTime;
-                    triggerWormholeTransition(elapsedTime);
-                  }
+                  continue;
                 } else {
                   // Smooth relativistic Keplerian spiral physics
                   const uRx = toBx / distToB;
@@ -2917,10 +2880,26 @@
             if (Math.abs(p.x) > 30) { p.x = Math.sign(p.x) * 30; p.vx *= -0.3; }
             if (Math.abs(p.y) > 30) { p.y = Math.sign(p.y) * 30; p.vy *= -0.3; }
 
+            if (p.teleportFlash && p.teleportFlash > 0.01) {
+              p.teleportFlash *= 0.88;
+              const curScale = 1.0 - p.teleportFlash * 0.75;
+              p.mesh.scale.set(curScale, curScale, curScale);
+              if (p.teleportFlash <= 0.01) {
+                p.mesh.scale.set(1.0, 1.0, 1.0);
+              }
+            } else if (!p.absorbing) {
+              p.mesh.scale.set(1.0, 1.0, 1.0);
+            }
+
             const currentZ = getLossHeight(p.x, p.y, elapsedTime) + 0.65;
             p.mesh.position.set(p.x, p.y, currentZ);
-            p.mesh.rotation.x += 0.03;
-            p.mesh.rotation.y += 0.04;
+
+            // Physically grounded rolling rotation along momentum vector
+            const pSpeed = Math.hypot(p.vx, p.vy);
+            if (pSpeed > 0.001) {
+              p.mesh.rotation.x += p.vy * 1.8;
+              p.mesh.rotation.y -= p.vx * 1.8;
+            }
 
             // Append history point
             if (p.history.length < p.maxTrail) {
@@ -2954,29 +2933,16 @@
                 arc.mat.opacity = 0;
               } else {
                 const u = arcAge / arc.duration;
+                // Progressive beam draw along geodesic arc, then tail fade
+                const drawProgress = Math.min(1.0, u / 0.35);
+                const count = Math.max(2, Math.floor(ARC_POINTS * drawProgress));
+                arc.geo.setDrawRange(0, count);
                 arc.mat.opacity = (1.0 - u) * 0.95;
               }
             }
           });
 
-          // 4. Update Topographical Critical Point Landmarks (Dynamic Surface Locking)
-          activeBeacons.forEach(b => {
-            const bz = getLossHeight(b.x, b.y, elapsedTime);
-            b.group.position.set(b.x, b.y, bz);
-            b.markerMesh.rotation.y += 0.02;
-            b.markerMesh.rotation.x = Math.sin(elapsedTime * 2.0 + b.phase) * 0.15;
-            const pulseRing = 1.0 + Math.sin(elapsedTime * 2.5 + b.phase) * 0.18;
-            b.groundRing.scale.set(pulseRing, pulseRing, pulseRing);
-
-            if (activeBlackhole && activeBlackhole.currentStrength > 0.05) {
-              const distToHole = Math.hypot(activeBlackhole.x - b.x, activeBlackhole.y - b.y);
-              b.group.visible = distToHole >= 8.5;
-            } else {
-              b.group.visible = true;
-            }
-          });
-
-          // 5. Update Interactive Tangent Gradient Cursor Indicator
+          // 4. Update Interactive Tangent Gradient Cursor Indicator
           if (tangentCursorState.active && (!activeBlackhole || !activeBlackhole.isWormhole)) {
             tangentCursorState.opacity += (0.85 - tangentCursorState.opacity) * 0.14;
           } else {
@@ -3019,8 +2985,14 @@
             tangentCursorGroup.visible = false;
           }
 
-          // Gentle rotation & ripple decay
+          // Gentle rotation & ripple decay with fluid orbit momentum
           manifoldGroup.rotation.z += 0.0008;
+          if (!isDragging) {
+            manifoldGroup.rotation.z += orbitVelZ;
+            manifoldGroup.rotation.x += orbitVelX;
+            orbitVelZ *= 0.92;
+            orbitVelX *= 0.92;
+          }
           rippleIntensity *= 0.96;
         }
 
