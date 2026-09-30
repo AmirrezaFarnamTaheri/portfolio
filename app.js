@@ -95,6 +95,20 @@
     });
   }
 
+  function copyText(text) {
+    if (!text) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => {
+        const copiedLabel = (window.I18N && window.I18N.t('copied')) || 'Copied';
+        showToast(`${copiedLabel}: ${text}`);
+      }).catch(() => {
+        showToast(text);
+      });
+    } else {
+      showToast(text);
+    }
+  }
+
   // --- Theme Management ---
   const storageKey = 'farnam_theme_preference';
   const root = document.documentElement;
@@ -115,6 +129,11 @@
     if (typeof window.__updateCanvasTheme === 'function') {
       window.__updateCanvasTheme(theme === 'dark');
     }
+    document.querySelectorAll('.mini-browser-iframe').forEach(frame => {
+      try {
+        frame.contentWindow.postMessage({ type: 'THEME_CHANGE', theme }, '*');
+      } catch (_) {}
+    });
   }
 
   applyTheme(getPreferredTheme());
@@ -308,55 +327,7 @@
             </div>
 
             <div class="project-visual">
-              ${(p.screenshots && p.screenshots.length > 0) ? `
-                <div class="app-window">
-                  <div class="app-window-bar">
-                    <div class="mini-browser-dots" aria-hidden="true">
-                      <span class="dot dot-red"></span>
-                      <span class="dot dot-yellow"></span>
-                      <span class="dot dot-green"></span>
-                    </div>
-                    <div class="app-window-title mono">${escapeHTML(p.windowTitle || title)}</div>
-                    ${p.liveBrowserUrl ? `
-                      <a href="${escapeHTML(p.liveBrowserUrl)}" target="_blank" rel="noreferrer" class="mini-ext-btn app-window-live" title="Open live web demo" aria-label="Open live web demo">
-                        <span class="mono" style="font-size: 10px; margin-right: 4px; font-weight: 600;">LIVE DEMO</span>
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                          <line x1="7" y1="17" x2="17" y2="7"></line>
-                          <polyline points="7 7 17 7 17 17"></polyline>
-                        </svg>
-                      </a>
-                    ` : ''}
-                    <button type="button" class="app-window-zoom" data-project-id="${escapeHTML(p.id)}" title="Open screenshot lightbox" aria-label="Open screenshot in lightbox">
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                        <line x1="11" y1="8" x2="11" y2="14"></line>
-                        <line x1="8" y1="11" x2="14" y2="11"></line>
-                      </svg>
-                    </button>
-                  </div>
-                  ${(p.screenshots && p.screenshots.length > 1) ? `
-                    <div class="screenshot-catalog-strip" role="tablist" aria-label="Screenshot Catalog">
-                      ${p.screenshots.map((s, sIdx) => `
-                        <button type="button" class="catalog-pill ${sIdx === 0 ? 'active' : ''}" data-project-id="${escapeHTML(p.id)}" data-idx="${sIdx}">
-                          ${escapeHTML(s.label)}
-                        </button>
-                      `).join('')}
-                      <div class="catalog-sweep-nav">
-                        <button type="button" class="catalog-arrow prev" data-project-id="${escapeHTML(p.id)}" data-dir="-1" aria-label="Previous screenshot" title="Previous screenshot">‹</button>
-                        <button type="button" class="catalog-arrow next" data-project-id="${escapeHTML(p.id)}" data-dir="1" aria-label="Next screenshot" title="Next screenshot">›</button>
-                      </div>
-                    </div>
-                  ` : ''}
-                  <div class="app-window-viewport">
-                    <img id="img-${escapeHTML(p.id)}" class="clickable-screenshot" src="${escapeHTML(p.image)}" alt="${escapeHTML(p.imageAlt || title)}" data-project-id="${escapeHTML(p.id)}" data-current-idx="0" loading="lazy" title="Click to enlarge" onerror="if(this.dataset.fallback &amp;&amp; this.src!==this.dataset.fallback){this.src=this.dataset.fallback;}" data-fallback="${escapeHTML(p.screenshots && p.screenshots[0] ? p.screenshots[0].fallbackUrl : '')}" />
-                    ${(p.screenshots && p.screenshots.length > 1) ? `
-                      <button type="button" class="viewport-nav-btn prev" data-project-id="${escapeHTML(p.id)}" data-dir="-1" aria-label="Previous view" title="Previous view">‹</button>
-                      <button type="button" class="viewport-nav-btn next" data-project-id="${escapeHTML(p.id)}" data-dir="1" aria-label="Next view" title="Next view">›</button>
-                    ` : ''}
-                  </div>
-                </div>
-              ` : (p.liveBrowserUrl ? `
+              ${p.liveBrowserUrl ? `
                 <div class="mini-browser">
                   <div class="mini-browser-bar">
                     <div class="mini-browser-dots" aria-hidden="true">
@@ -385,6 +356,45 @@
                   </div>
                   <div class="mini-browser-viewport">
                     <iframe id="frame-${escapeHTML(p.id)}" class="mini-browser-iframe" src="${escapeHTML(p.liveBrowserUrl)}" title="${escapeHTML(title)} Live Webpage" loading="lazy" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+                  </div>
+                </div>
+              ` : ((p.screenshots && p.screenshots.length > 0) ? `
+                <div class="app-window">
+                  <div class="app-window-bar">
+                    <div class="mini-browser-dots" aria-hidden="true">
+                      <span class="dot dot-red"></span>
+                      <span class="dot dot-yellow"></span>
+                      <span class="dot dot-green"></span>
+                    </div>
+                    <div class="app-window-title mono">${escapeHTML(p.windowTitle || title)}</div>
+                    <button type="button" class="app-window-zoom" data-project-id="${escapeHTML(p.id)}" title="Open screenshot lightbox" aria-label="Open screenshot in lightbox">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        <line x1="11" y1="8" x2="11" y2="14"></line>
+                        <line x1="8" y1="11" x2="14" y2="11"></line>
+                      </svg>
+                    </button>
+                  </div>
+                  ${(p.screenshots && p.screenshots.length > 1) ? `
+                    <div class="screenshot-catalog-strip" role="tablist" aria-label="Screenshot Catalog">
+                      ${p.screenshots.map((s, sIdx) => `
+                        <button type="button" class="catalog-pill ${sIdx === 0 ? 'active' : ''}" data-project-id="${escapeHTML(p.id)}" data-idx="${sIdx}">
+                          ${escapeHTML(s.label)}
+                        </button>
+                      `).join('')}
+                      <div class="catalog-sweep-nav">
+                        <button type="button" class="catalog-arrow prev" data-project-id="${escapeHTML(p.id)}" data-dir="-1" aria-label="Previous screenshot" title="Previous screenshot">‹</button>
+                        <button type="button" class="catalog-arrow next" data-project-id="${escapeHTML(p.id)}" data-dir="1" aria-label="Next screenshot" title="Next screenshot">›</button>
+                      </div>
+                    </div>
+                  ` : ''}
+                  <div class="app-window-viewport">
+                    <img id="img-${escapeHTML(p.id)}" class="clickable-screenshot" src="${escapeHTML(p.image)}" alt="${escapeHTML(p.imageAlt || title)}" data-project-id="${escapeHTML(p.id)}" data-current-idx="0" loading="lazy" title="Click to enlarge" onerror="if(this.dataset.fallback && this.src!==this.dataset.fallback){this.src=this.dataset.fallback;}" data-fallback="${escapeHTML(p.screenshots && p.screenshots[0] ? p.screenshots[0].fallbackUrl : '')}" />
+                    ${(p.screenshots && p.screenshots.length > 1) ? `
+                      <button type="button" class="viewport-nav-btn prev" data-project-id="${escapeHTML(p.id)}" data-dir="-1" aria-label="Previous view" title="Previous view">‹</button>
+                      <button type="button" class="viewport-nav-btn next" data-project-id="${escapeHTML(p.id)}" data-dir="1" aria-label="Next view" title="Next view">›</button>
+                    ` : ''}
                   </div>
                 </div>
               ` : (hasImage ? `
@@ -1094,31 +1104,31 @@
   const openCmdBtn = document.getElementById('open-cmd-btn');
 
   const commandItems = [
-    { title: 'Home & Overview', cat: 'Navigation', icon: '↗', action: () => document.getElementById('top')?.scrollIntoView({ behavior: 'smooth' }) },
-    { title: 'Research (Master’s Thesis)', cat: 'Navigation', icon: '✦', action: () => document.getElementById('research')?.scrollIntoView({ behavior: 'smooth' }) },
-    { title: 'Courseworks', cat: 'Navigation', icon: '↗', action: () => document.getElementById('coursework')?.scrollIntoView({ behavior: 'smooth' }) },
-    { title: 'Academic Background & Skills', cat: 'Navigation', icon: '↗', action: () => document.getElementById('background')?.scrollIntoView({ behavior: 'smooth' }) },
-    { title: 'Passion Projects', cat: 'Navigation', icon: '↗', action: () => document.getElementById('work')?.scrollIntoView({ behavior: 'smooth' }) },
-    { title: 'Scientific Computing', cat: 'Navigation', icon: '↗', action: () => document.getElementById('scientific')?.scrollIntoView({ behavior: 'smooth' }) },
-    { title: 'Econometrics I (Coursework Repo)', cat: 'Coursework', icon: '↗', action: () => window.open('https://github.com/AmirrezaFarnamTaheri/Econometrics-I', '_blank') },
-    { title: 'Econometrics II: Applied Econometrics (Coursework Repo)', cat: 'Coursework', icon: '↗', action: () => window.open('https://github.com/AmirrezaFarnamTaheri/Metric-II-Homeworks', '_blank') },
-    { title: 'Macroeconomics I (Coursework Repo)', cat: 'Coursework', icon: '↗', action: () => window.open('https://github.com/AmirrezaFarnamTaheri/Macroeconomics-I', '_blank') },
-    { title: 'Machine Learning (Coursework Repo)', cat: 'Coursework', icon: '↗', action: () => window.open('https://github.com/AmirrezaFarnamTaheri/Machine-Learning', '_blank') },
-    { title: 'Deep Learning 2025 (Coursework Repo)', cat: 'Coursework', icon: '↗', action: () => window.open('https://github.com/AmirrezaFarnamTaheri/Deep-Learning-2025', '_blank') },
-    { title: 'Scriptor: Local Knowledge Workspace', cat: 'Tooling', icon: '⌗', action: () => openProjectModal('scriptor') },
-    { title: 'HUNTX: Network Telemetry Utility', cat: 'Tooling', icon: '⌗', action: () => openProjectModal('huntx') },
-    { title: 'WinCare: Diagnostics & Recovery Tool', cat: 'Tooling', icon: '⌗', action: () => openProjectModal('wincare') },
-    { title: 'Toggle Dark / Light Theme', cat: 'Action', icon: '◐', action: () => themeToggle?.click() },
-    { title: 'Visit TeIAS (Tehran Institute for Advanced Studies)', cat: 'Academic', icon: '↗', action: () => window.open('https://teias.institute', '_blank') },
-    { title: 'Spawn Gravitational Singularity (Black Hole)', cat: 'Simulation', icon: '◉', action: () => { if (typeof window.__spawnBlackholeAt === 'function') { const s = window.__spawnBlackholeAt(0, 0); if (!s) showToast((window.I18N && window.I18N.t('toast_singularity_active')) || 'A singularity is already active on the manifold', 2400); } } },
-    { title: 'Trigger Einstein-Rosen Wormhole Portal', cat: 'Simulation', icon: '◎', action: () => { if (typeof window.__triggerWormhole === 'function') { const w = window.__triggerWormhole(); if (!w) showToast((window.I18N && window.I18N.t('toast_singularity_active')) || 'A singularity or wormhole is already active on the manifold', 2400); } } },
-    { title: 'Spawn Descent Probe on Surface', cat: 'Simulation', icon: '✦', action: () => { if (typeof window.__spawnProbeAt === 'function') window.__spawnProbeAt((Math.random() - 0.5) * 20, (Math.random() - 0.5) * 20); } },
-    { title: 'Trigger Loss Surface Ripple', cat: 'Simulation', icon: '◈', action: () => { if (typeof window.__triggerSurfaceRipple === 'function') window.__triggerSurfaceRipple(); } },
-    { title: 'Copy Primary Email (TaheriFarnam@Gmail.com)', cat: 'Contact', icon: '⎘', action: () => copyText('TaheriFarnam@Gmail.com') },
-    { title: 'Copy Phone (+989999946242)', cat: 'Contact', icon: '⎘', action: () => copyText('+989999946242') },
-    { title: 'Open GitHub Profile', cat: 'External', icon: '↗', action: () => window.open('https://github.com/AmirrezaFarnamTaheri', '_blank') },
-    { title: 'Open LinkedIn Profile', cat: 'External', icon: '↗', action: () => window.open(window.PORTFOLIO_DATA?.person?.linkedin || 'https://ir.linkedin.com/in/amirreza-farnam-taheri-2691b1201', '_blank') },
-    { title: 'Open Printable CV', cat: 'Document', icon: '↗', action: () => window.open('resume.html', '_blank') }
+    { title: 'Home & Overview', titleFa: 'خانه و نمای کلی', cat: 'Navigation', catFa: 'ناوبری', icon: '↗', action: () => document.getElementById('top')?.scrollIntoView({ behavior: 'smooth' }) },
+    { title: 'Research (Master’s Thesis)', titleFa: 'پژوهش (پایان‌نامه کارشناسی ارشد)', cat: 'Navigation', catFa: 'ناوبری', icon: '✦', action: () => document.getElementById('research')?.scrollIntoView({ behavior: 'smooth' }) },
+    { title: 'Courseworks', titleFa: 'دروس و دوره‌های تخصصی', cat: 'Navigation', catFa: 'ناوبری', icon: '↗', action: () => document.getElementById('coursework')?.scrollIntoView({ behavior: 'smooth' }) },
+    { title: 'Academic Background & Skills', titleFa: 'سوابق تحصیلی و شایستگی‌ها', cat: 'Navigation', catFa: 'ناوبری', icon: '↗', action: () => document.getElementById('background')?.scrollIntoView({ behavior: 'smooth' }) },
+    { title: 'Passion Projects', titleFa: 'پروژه‌های شاخص', cat: 'Navigation', catFa: 'ناوبری', icon: '↗', action: () => document.getElementById('work')?.scrollIntoView({ behavior: 'smooth' }) },
+    { title: 'Scientific Computing', titleFa: 'محاسبات علمی و کاربردی', cat: 'Navigation', catFa: 'ناوبری', icon: '↗', action: () => document.getElementById('scientific')?.scrollIntoView({ behavior: 'smooth' }) },
+    { title: 'Econometrics I (Coursework Repo)', titleFa: 'اقتصادسنجی ۱ (مخزن گیت‌هاب)', cat: 'Coursework', catFa: 'دروس', icon: '↗', action: () => window.open('https://github.com/AmirrezaFarnamTaheri/Econometrics-I', '_blank') },
+    { title: 'Econometrics II: Applied Econometrics (Coursework Repo)', titleFa: 'اقتصادسنجی ۲: اقتصادسنجی کاربردی (مخزن گیت‌هاب)', cat: 'Coursework', catFa: 'دروس', icon: '↗', action: () => window.open('https://github.com/AmirrezaFarnamTaheri/Metric-II-Homeworks', '_blank') },
+    { title: 'Macroeconomics I (Coursework Repo)', titleFa: 'اقتصاد کلان ۱ (مخزن گیت‌هاب)', cat: 'Coursework', catFa: 'دروس', icon: '↗', action: () => window.open('https://github.com/AmirrezaFarnamTaheri/Macroeconomics-I', '_blank') },
+    { title: 'Machine Learning (Coursework Repo)', titleFa: 'یادگیری ماشین (مخزن گیت‌هاب)', cat: 'Coursework', catFa: 'دروس', icon: '↗', action: () => window.open('https://github.com/AmirrezaFarnamTaheri/Machine-Learning', '_blank') },
+    { title: 'Deep Learning 2025 (Coursework Repo)', titleFa: 'شبکه‌های عصبی و یادگیری عمیق ۲۰۲۵ (مخزن گیت‌هاب)', cat: 'Coursework', catFa: 'دروس', icon: '↗', action: () => window.open('https://github.com/AmirrezaFarnamTaheri/Deep-Learning-2025', '_blank') },
+    { title: 'Scriptor: Local Knowledge Workspace', titleFa: 'اسکریپتور (Scriptor): محیط کار محلی دانش', cat: 'Tooling', catFa: 'ابزارها', icon: '⌗', action: () => openProjectModal('scriptor') },
+    { title: 'HUNTX: Network Telemetry Utility', titleFa: 'هانت‌ایکس (HUNTX): سامانه دورسنجی شبکه', cat: 'Tooling', catFa: 'ابزارها', icon: '⌗', action: () => openProjectModal('huntx') },
+    { title: 'WinCare: Diagnostics & Recovery Tool', titleFa: 'وین‌کر (WinCare): پلتفرم عیب‌یابی و خودترمیمی ویندوز', cat: 'Tooling', catFa: 'ابزارها', icon: '⌗', action: () => openProjectModal('wincare') },
+    { title: 'Toggle Dark / Light Theme', titleFa: 'تغییر پوسته تیره / روشن', cat: 'Action', catFa: 'عملیات', icon: '◐', action: () => themeToggle?.click() },
+    { title: 'Visit TeIAS (Tehran Institute for Advanced Studies)', titleFa: 'مشاهده تارنمای موسسه تحقیقات پیشرفته تهران (TeIAS)', cat: 'Academic', catFa: 'آکادمیک', icon: '↗', action: () => window.open('https://teias.institute', '_blank') },
+    { title: 'Spawn Gravitational Singularity (Black Hole)', titleFa: 'ایجاد تکینگی گرانشی (سیاه‌چاله در خمینه)', cat: 'Simulation', catFa: 'شبیه‌سازی', icon: '◉', action: () => { if (typeof window.__spawnBlackholeAt === 'function') { const s = window.__spawnBlackholeAt(0, 0); if (!s) showToast((window.I18N && window.I18N.t('toast_singularity_active')) || 'A singularity is already active on the manifold', 2400); } } },
+    { title: 'Trigger Einstein-Rosen Wormhole Portal', titleFa: 'فعال‌سازی درگاه کرم‌چاله اینشتین-روزن', cat: 'Simulation', catFa: 'شبیه‌سازی', icon: '◎', action: () => { if (typeof window.__triggerWormhole === 'function') { const w = window.__triggerWormhole(); if (!w) showToast((window.I18N && window.I18N.t('toast_singularity_active')) || 'A singularity or wormhole is already active on the manifold', 2400); } } },
+    { title: 'Spawn Descent Probe on Surface', titleFa: 'پرتاب کاوشگر گرادیان روی خمینه', cat: 'Simulation', catFa: 'شبیه‌سازی', icon: '✦', action: () => { if (typeof window.__spawnProbeAt === 'function') window.__spawnProbeAt((Math.random() - 0.5) * 20, (Math.random() - 0.5) * 20); } },
+    { title: 'Trigger Loss Surface Ripple', titleFa: 'ایجاد موج و نوسان در خمینه', cat: 'Simulation', catFa: 'شبیه‌سازی', icon: '◈', action: () => { if (typeof window.__triggerSurfaceRipple === 'function') window.__triggerSurfaceRipple(); } },
+    { title: 'Copy Primary Email (TaheriFarnam@Gmail.com)', titleFa: 'کپی آدرس ایمیل (TaheriFarnam@Gmail.com)', cat: 'Contact', catFa: 'ارتباط', icon: '⎘', action: () => copyText('TaheriFarnam@Gmail.com') },
+    { title: 'Copy Phone (+989999946242)', titleFa: 'کپی شماره تماس (+989999946242)', cat: 'Contact', catFa: 'ارتباط', icon: '⎘', action: () => copyText('+989999946242') },
+    { title: 'Open GitHub Profile', titleFa: 'مشاهده حساب کاربری در گیت‌هاب', cat: 'External', catFa: 'پیوندها', icon: '↗', action: () => window.open('https://github.com/AmirrezaFarnamTaheri', '_blank') },
+    { title: 'Open LinkedIn Profile', titleFa: 'مشاهده پروفایل در لینکدین', cat: 'External', catFa: 'پیوندها', icon: '↗', action: () => window.open(window.PORTFOLIO_DATA?.person?.linkedin || 'https://ir.linkedin.com/in/amirreza-farnam-taheri-2691b1201', '_blank') },
+    { title: 'Open Printable CV', titleFa: 'مشاهده نسخه چاپی رزومه (CV)', cat: 'Document', catFa: 'اسناد', icon: '↗', action: () => window.open('resume.html', '_blank') }
   ];
 
   let selectedIndex = 0;
@@ -1131,15 +1141,20 @@
       return;
     }
 
-    cmdResults.innerHTML = filteredCommands.map((cmd, i) => `
-      <div class="cmd-item ${i === selectedIndex ? 'selected' : ''}" data-index="${i}" role="option" aria-selected="${i === selectedIndex}">
-        <div class="cmd-item-left">
-          <span class="mono" style="color: var(--accent);">${cmd.icon}</span>
-          <span>${escapeHTML(cmd.title)}</span>
+    const isFa = window.I18N && window.I18N.getLanguage() === 'fa';
+    cmdResults.innerHTML = filteredCommands.map((cmd, i) => {
+      const displayTitle = (isFa && cmd.titleFa) ? cmd.titleFa : cmd.title;
+      const displayCat = (isFa && cmd.catFa) ? cmd.catFa : cmd.cat;
+      return `
+        <div class="cmd-item ${i === selectedIndex ? 'selected' : ''}" data-index="${i}" role="option" aria-selected="${i === selectedIndex}">
+          <div class="cmd-item-left">
+            <span class="mono" style="color: var(--accent);">${cmd.icon}</span>
+            <span>${escapeHTML(displayTitle)}</span>
+          </div>
+          <span class="cmd-item-cat mono">${escapeHTML(displayCat)}</span>
         </div>
-        <span class="cmd-item-cat mono">${escapeHTML(cmd.cat)}</span>
-      </div>
-    `).join('');
+      `;
+    }).join('');
 
     const selectedEl = cmdResults.querySelector('.cmd-item.selected');
     if (selectedEl) {
@@ -1182,9 +1197,13 @@
     if (cmdInput) {
       cmdInput.addEventListener('input', (e) => {
         const q = e.target.value.toLowerCase().trim();
-        filteredCommands = commandItems.filter(item =>
-          item.title.toLowerCase().includes(q) || item.cat.toLowerCase().includes(q)
-        );
+        filteredCommands = commandItems.filter(item => {
+          const tEn = (item.title || '').toLowerCase();
+          const cEn = (item.cat || '').toLowerCase();
+          const tFa = (item.titleFa || '').toLowerCase();
+          const cFa = (item.catFa || '').toLowerCase();
+          return tEn.includes(q) || cEn.includes(q) || tFa.includes(q) || cFa.includes(q);
+        });
         selectedIndex = 0;
         renderCmdResults();
       });
@@ -1298,8 +1317,8 @@
       // Theme Colors
       let isDark = root.getAttribute('data-theme') === 'dark';
       let wireColor = isDark ? 0x38bdf8 : 0x1e56e3;
-      let skinColor = isDark ? 0x0e1726 : 0xe0e7ff;
-      let emissiveColor = isDark ? 0x091e3a : 0x1e40af;
+      let skinColor = isDark ? 0x0e1726 : 0xdbeafe;
+      let emissiveColor = isDark ? 0x091e3a : 0x1d4ed8;
 
       // Active Singularity / Gravitational Well (Max 1 at a time)
       let activeBlackhole = null;
@@ -1380,10 +1399,10 @@
         roughness: 0.32,
         metalness: 0.52,
         emissive: emissiveColor,
-        emissiveIntensity: isDark ? 0.35 : 0.18,
+        emissiveIntensity: isDark ? 0.35 : 0.22,
         flatShading: true,
         transparent: true,
-        opacity: isDark ? 0.65 : 0.45,
+        opacity: isDark ? 0.72 : 0.58,
         side: THREE.DoubleSide
       });
       const skinMesh = new THREE.Mesh(planeGeo, skinMat);
@@ -1393,7 +1412,7 @@
         color: wireColor,
         wireframe: true,
         transparent: true,
-        opacity: isDark ? 0.38 : 0.24
+        opacity: isDark ? 0.45 : 0.32
       });
       const wireMesh = new THREE.Mesh(planeGeo, wireMat);
       manifoldGroup.add(wireMesh);
@@ -1764,15 +1783,15 @@
       window.__updateCanvasTheme = function (dark) {
         isDark = dark;
         wireColor = dark ? 0x38bdf8 : 0x1e56e3;
-        skinColor = dark ? 0x0e1726 : 0xe0e7ff;
-        emissiveColor = dark ? 0x091e3a : 0x1e40af;
+        skinColor = dark ? 0x0e1726 : 0xdbeafe;
+        emissiveColor = dark ? 0x091e3a : 0x1d4ed8;
 
         wireMat.color.setHex(wireColor);
-        wireMat.opacity = dark ? 0.38 : 0.24;
+        wireMat.opacity = dark ? 0.45 : 0.32;
         skinMat.color.setHex(skinColor);
         skinMat.emissive.setHex(emissiveColor);
-        skinMat.emissiveIntensity = dark ? 0.35 : 0.18;
-        skinMat.opacity = dark ? 0.65 : 0.45;
+        skinMat.emissiveIntensity = dark ? 0.35 : 0.22;
+        skinMat.opacity = dark ? 0.72 : 0.58;
         rimLight.color.setHex(dark ? 0x38bdf8 : 0x60a5fa);
 
         activeProbes.forEach(p => {

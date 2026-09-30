@@ -119,18 +119,19 @@ window.PORTFOLIO_DATA = {
       stack: ['Rust', 'TypeScript', 'React 19', 'Tauri 2', 'SQLite FTS5', 'Pandoc', 'MCP', 'Git', 'CI/CD'],
       href: 'https://github.com/AmirrezaFarnamTaheri/Scriptor',
       cta: 'Explore Scriptor Repository',
-      image: 'assets/screenshots/scriptor/workspace-dark.png',
-      fallbackImage: 'https://raw.githubusercontent.com/AmirrezaFarnamTaheri/Scriptor/main/docs/assets/screenshots/workspace-dark.png',
+      image: 'https://raw.githubusercontent.com/AmirrezaFarnamTaheri/Scriptor/main/docs/assets/screenshots/workspace-dark.png',
+      fallbackImage: 'assets/screenshots/scriptor/workspace-dark.png',
       imageAlt: 'Scriptor local-first Markdown workspace showing editor, knowledge graph, and citations',
       windowTitle: 'Scriptor · Local-first Research Workspace',
       architectureHtmlUrl: 'architectures/scriptor.html?embed=1',
       architectureRepoUrl: 'https://github.com/AmirrezaFarnamTaheri/Scriptor/blob/main/docs/architecture.html',
       architectureDocUrl: 'https://github.com/AmirrezaFarnamTaheri/Scriptor/blob/main/docs/ARCHITECTURE.md',
       screenshots: [
-        { label: 'Workspace', url: 'assets/screenshots/scriptor/workspace-dark.png', fallbackUrl: 'https://raw.githubusercontent.com/AmirrezaFarnamTaheri/Scriptor/main/docs/assets/screenshots/workspace-dark.png', alt: 'Scriptor Dark Mode workspace with CodeMirror 6 and live preview' },
-        { label: 'Canvas Board', url: 'assets/screenshots/scriptor/canvas.png', fallbackUrl: 'https://raw.githubusercontent.com/AmirrezaFarnamTaheri/Scriptor/main/docs/assets/screenshots/canvas.png', alt: 'Scriptor Spatial Canvas board for visual thought and note mapping' },
-        { label: 'MCP Bridge', url: 'assets/screenshots/scriptor/mcp-panel.png', fallbackUrl: 'https://raw.githubusercontent.com/AmirrezaFarnamTaheri/Scriptor/main/docs/assets/screenshots/mcp-panel.png', alt: 'Scriptor Model Context Protocol (MCP) agent tooling and inspection panel' },
-        { label: 'Knowledge Graph', url: 'assets/screenshots/scriptor/knowledge-workbench.png', fallbackUrl: 'https://raw.githubusercontent.com/AmirrezaFarnamTaheri/Scriptor/main/docs/assets/screenshots/knowledge-workbench.png', alt: 'Scriptor Knowledge Workbench with 3D graph and backlink exploration' }
+        { label: 'Workspace (Dark)', url: 'https://raw.githubusercontent.com/AmirrezaFarnamTaheri/Scriptor/main/docs/assets/screenshots/workspace-dark.png', fallbackUrl: 'assets/screenshots/scriptor/workspace-dark.png', alt: 'Scriptor Dark Mode workspace with CodeMirror 6 and live preview' },
+        { label: 'Knowledge Graph', url: 'https://raw.githubusercontent.com/AmirrezaFarnamTaheri/Scriptor/main/docs/assets/screenshots/knowledge-workbench.png', fallbackUrl: 'assets/screenshots/scriptor/knowledge-workbench.png', alt: 'Scriptor Knowledge Workbench with interactive 3D graph and backlink exploration' },
+        { label: 'Canvas Board', url: 'https://raw.githubusercontent.com/AmirrezaFarnamTaheri/Scriptor/main/docs/assets/screenshots/canvas.png', fallbackUrl: 'assets/screenshots/scriptor/canvas.png', alt: 'Scriptor Spatial Canvas board for visual thought and note mapping' },
+        { label: 'MCP Bridge', url: 'https://raw.githubusercontent.com/AmirrezaFarnamTaheri/Scriptor/main/docs/assets/screenshots/mcp-panel.png', fallbackUrl: 'assets/screenshots/scriptor/mcp-panel.png', alt: 'Scriptor Model Context Protocol (MCP) agent tooling and inspection panel' },
+        { label: 'Workspace (Light)', url: 'https://raw.githubusercontent.com/AmirrezaFarnamTaheri/Scriptor/main/docs/assets/screenshots/workspace-light.png', fallbackUrl: 'assets/screenshots/scriptor/workspace-light.png', alt: 'Scriptor Light Mode workspace with clean typography and document outline' }
       ],
       visual: 'SC'
     },
@@ -233,15 +234,16 @@ window.PORTFOLIO_DATA = {
       stack: ['WinUI 3', '.NET 8', 'C#', 'Rust 2024', 'ONNX Runtime', 'DirectML'],
       href: 'https://github.com/AmirrezaFarnamTaheri/WinCare',
       cta: 'Explore WinCare Repository',
-      image: 'assets/screenshots/wincare/runtime-dashboard.png',
-      fallbackImage: 'https://raw.githubusercontent.com/AmirrezaFarnamTaheri/WinCare/master/docs/images/runtime-dashboard.png',
+      image: 'https://raw.githubusercontent.com/AmirrezaFarnamTaheri/WinCare/master/docs/images/runtime-dashboard.png',
+      fallbackImage: 'assets/screenshots/wincare/runtime-dashboard.png',
       imageAlt: 'WinCare native WinUI 3 desktop dashboard showing system status, telemetry, and diagnostics',
       windowTitle: 'WinCare · Native Desktop Operations',
       screenshots: [
-        { label: 'Dashboard', url: 'assets/screenshots/wincare/runtime-dashboard.png', fallbackUrl: 'https://raw.githubusercontent.com/AmirrezaFarnamTaheri/WinCare/master/docs/images/runtime-dashboard.png', alt: 'WinCare native WinUI 3 system dashboard with live telemetry and process monitoring' },
-        { label: 'Checkup', url: 'assets/screenshots/wincare/runtime-checkup.png', fallbackUrl: 'https://raw.githubusercontent.com/AmirrezaFarnamTaheri/WinCare/master/docs/images/runtime-checkup.png', alt: 'WinCare system diagnostic checkup scan and review-before-apply recommendations' },
-        { label: 'Terminal TUI', url: 'assets/screenshots/wincare/tui-preview.png', fallbackUrl: 'https://raw.githubusercontent.com/AmirrezaFarnamTaheri/WinCare/master/docs/images/tui-preview.png', alt: 'WinCare Spectre.Console headless terminal REPL with live telemetry and process isolation' },
-        { label: 'Diagnostics Showcase', url: 'assets/screenshots/wincare/showcase-preview.png', fallbackUrl: 'https://raw.githubusercontent.com/AmirrezaFarnamTaheri/WinCare/master/docs/images/showcase-preview.png', alt: 'WinCare diagnostic tool showcase and policy-governed system maintenance catalog' }
+        { label: 'Runtime Dashboard', url: 'https://raw.githubusercontent.com/AmirrezaFarnamTaheri/WinCare/master/docs/images/runtime-dashboard.png', fallbackUrl: 'assets/screenshots/wincare/runtime-dashboard.png', alt: 'WinCare native WinUI 3 system dashboard with live telemetry and process monitoring' },
+        { label: 'System Checkup', url: 'https://raw.githubusercontent.com/AmirrezaFarnamTaheri/WinCare/master/docs/images/runtime-checkup.png', fallbackUrl: 'assets/screenshots/wincare/runtime-checkup.png', alt: 'WinCare system diagnostic checkup scan and review-before-apply recommendations' },
+        { label: 'Tools Showcase', url: 'https://raw.githubusercontent.com/AmirrezaFarnamTaheri/WinCare/master/docs/images/showcase-preview.png', fallbackUrl: 'assets/screenshots/wincare/showcase-preview.png', alt: 'WinCare diagnostic tool showcase and policy-governed system maintenance catalog' },
+        { label: 'Architecture View', url: 'https://raw.githubusercontent.com/AmirrezaFarnamTaheri/WinCare/master/docs/images/architecture-preview.png', fallbackUrl: 'assets/screenshots/wincare/architecture-preview.png', alt: 'WinCare interactive C4 architecture and component topology overview' },
+        { label: 'Terminal TUI', url: 'https://raw.githubusercontent.com/AmirrezaFarnamTaheri/WinCare/master/docs/images/tui-preview.png', fallbackUrl: 'assets/screenshots/wincare/tui-preview.png', alt: 'WinCare Spectre.Console headless terminal REPL with live telemetry and process isolation' }
       ],
       visual: 'WC'
     }

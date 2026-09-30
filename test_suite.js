@@ -292,6 +292,34 @@ try {
     'Wormhole API, zero-latency mesh teleportation, and command palette integration verified'
   );
 
+  // 18. Validate Remote Web Screenshot Synchronization, Local Fallbacks, and Live Mini-Browser Embed
+  const dEn = fs.readFileSync('data.js', 'utf8');
+  const dFa = fs.readFileSync('i18n.js', 'utf8');
+
+  const scriptorHasRemoteUrl = dEn.includes("https://raw.githubusercontent.com/AmirrezaFarnamTaheri/Scriptor/main/docs/assets/screenshots/workspace-dark.png") &&
+                               dFa.includes("https://raw.githubusercontent.com/AmirrezaFarnamTaheri/Scriptor/main/docs/assets/screenshots/workspace-dark.png");
+  const scriptorHasLocalFallback = dEn.includes("assets/screenshots/scriptor/workspace-dark.png") &&
+                                   dFa.includes("assets/screenshots/scriptor/workspace-dark.png");
+
+  const wincareHasRemoteUrl = dEn.includes("https://raw.githubusercontent.com/AmirrezaFarnamTaheri/WinCare/master/docs/images/runtime-dashboard.png") &&
+                              dFa.includes("https://raw.githubusercontent.com/AmirrezaFarnamTaheri/WinCare/master/docs/images/runtime-dashboard.png");
+  const wincareHasLocalFallback = dEn.includes("assets/screenshots/wincare/runtime-dashboard.png") &&
+                                  dFa.includes("assets/screenshots/wincare/runtime-dashboard.png");
+
+  const huntxHasLiveUrl = dEn.includes("liveBrowserUrl: 'https://amirrezafarnamtaheri.github.io/HUNTX/'");
+
+  const hasLightboxDialog = indexHtmlContent.includes('id="screenshot-lightbox"') && 
+                            indexHtmlContent.includes('id="lightbox-img"');
+  const hasLightboxFns = appJsContent.includes('openScreenshotLightbox') && 
+                         appJsContent.includes('bindScreenshotCatalogAndLightbox');
+  const hasThreeFallback = indexHtmlContent.includes('assets/vendor/three.min.js') &&
+                           fs.existsSync('assets/vendor/three.min.js');
+
+  assert(
+    scriptorHasRemoteUrl && scriptorHasLocalFallback && wincareHasRemoteUrl && wincareHasLocalFallback && huntxHasLiveUrl && hasLightboxDialog && hasLightboxFns && hasThreeFallback,
+    'Remote web screenshot synchronization (Scriptor, WinCare), local fallbacks, live mini-browser (HuntX), and 3D vendor fallback verified'
+  );
+
 } catch (e) {
   assert(false, `i18n validation error: ${e.message}`);
 }

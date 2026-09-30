@@ -15,3 +15,5 @@ yarn-error.log*
 
 # Dependencies (if any local tooling is used)
 node_modules/
+GEMINI.md
+.statamcp/

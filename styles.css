@@ -466,15 +466,15 @@ img {
   z-index: 0;
   overflow: hidden;
   cursor: default;
-  opacity: 0.95;
-  mask-image: radial-gradient(circle at 72% 38%, black 30%, transparent 88%);
-  -webkit-mask-image: radial-gradient(circle at 72% 38%, black 30%, transparent 88%);
+  opacity: 1;
+  mask-image: radial-gradient(ellipse at 70% 45%, black 45%, transparent 92%);
+  -webkit-mask-image: radial-gradient(ellipse at 70% 45%, black 45%, transparent 92%);
 }
 
 .canvas-overlay-gradient {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, transparent 70%, var(--bg) 100%);
+  background: linear-gradient(180deg, transparent 75%, var(--bg) 100%);
   pointer-events: none;
   z-index: 1;
 }
@@ -1607,6 +1607,7 @@ img {
   background: var(--surface);
   border: 1px solid var(--line);
   border-left: 4px solid var(--accent);
+  border-inline-start: 4px solid var(--accent);
   border-radius: var(--radius-md);
   padding: 32px 36px;
   box-shadow: var(--shadow-md);
@@ -1618,6 +1619,7 @@ img {
   background: #0f1523;
   border-color: rgba(255, 255, 255, 0.12);
   border-left-color: var(--accent);
+  border-inline-start-color: var(--accent);
 }
 
 .thesis-kicker-row {
@@ -2774,8 +2776,7 @@ dialog::backdrop {
   .hero-grid,
   .section-heading,
   .background-grid,
-  .project-card,
-  .stack-pillars-grid {
+  .project-card {
     grid-template-columns: 1fr;
   }
   
@@ -2961,8 +2962,7 @@ html[dir="rtl"] .telemetry-val,
 html[dir="rtl"] .project-kind,
 html[dir="rtl"] .project-sub,
 html[dir="rtl"] .bench-metric,
-html[dir="rtl"] .bench-val,
-html[dir="rtl"] .bullet-ledger li {
+html[dir="rtl"] .bench-val {
   letter-spacing: 0 !important;
 }
 
@@ -3018,10 +3018,22 @@ html[dir="rtl"] .proof-line {
   padding-right: 8px;
 }
 
-/* Lists and Bullets */
+/* Master's Thesis Card in RTL */
+html[dir="rtl"] .thesis-card {
+  border-left: 1px solid var(--line);
+  border-right: 4px solid var(--accent);
+}
+
+html[dir="rtl"][data-theme='dark'] .thesis-card {
+  border-left-color: rgba(255, 255, 255, 0.12);
+  border-right-color: var(--accent);
+}
+
+/* Lists and Bullets in RTL */
 html[dir="rtl"] .bullet-ledger li {
   padding-left: 0;
   padding-right: 18px;
+  letter-spacing: 0 !important;
 }
 
 html[dir="rtl"] .bullet-ledger li::before {
@@ -3035,8 +3047,15 @@ html[dir="rtl"] .course-search-input {
 }
 
 /* Course table in RTL */
+html[dir="rtl"] .course-legend,
 html[dir="rtl"] .course-row {
-  grid-template-columns: 240px 1fr 140px;
+  grid-template-columns: 1.2fr 1.6fr 130px;
+}
+
+@media (max-width: 768px) {
+  html[dir="rtl"] .course-row {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Lightbox & Modal buttons in RTL */
@@ -3062,4 +3081,3 @@ html[dir="rtl"] .catalog-arrow.prev {
 html[dir="rtl"] .catalog-arrow.next {
   transform: rotate(180deg);
 }
-
